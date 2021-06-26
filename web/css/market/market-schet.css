@@ -1,0 +1,127 @@
+     
+      /* The switch - the box around the slider */
+      .switch {
+          position: relative;
+          display: inline-block;
+          width: 60px;
+          height: 28px;
+      }
+      
+      /* Hide default HTML checkbox */
+      .switch input {display:none;}
+      
+      /* The slider */
+      .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+      }
+      
+      .slider:before {
+          position: absolute;
+          content: "";
+          height: 20px;
+          width: 26px;
+          left: 4px;
+          bottom: 4px;
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+      }
+      
+      input:checked + .slider {
+          background-color: #2196F3;
+      }
+      
+      input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+      }
+      
+      input:checked + .slider:before {
+          -webkit-transform: translateX(26px);
+          -ms-transform: translateX(26px);
+          transform: translateX(26px);
+      }
+      
+      /* Rounded sliders */
+      .slider.round {
+          border-radius: 34px;
+      }
+      
+      .slider.round:before {
+          border-radius: 50%;
+      }     
+      
+      
+      .circle {
+          width: 25px; /* задаете свои размеры */
+              height: 25px;
+              overflow: hidden;
+              display: inline;
+              background: #4169E1;
+              padding: 2px; /* создание отступов */
+                  text-align: center;
+                  border-radius: 50%;
+                  /* не забываем о кроссбраузерности */
+                  -moz-border-radius: 50%;
+                  -webkit-border-radius: 50%
+                      border: #FFF 1px solid;
+                      /* тень */
+                      box-shadow: 0px 1px 1px 1px #bbb; 
+                      -moz-box-shadow: 0px 1px 1px 1px #bbb;
+                      -webkit-box-shadow: 0px 1px 1px 1px #bbb;
+                      /**/
+                      float:left;
+                      margin-left:4px;
+                      margin-top: 0px;
+                      color:white;
+      }
+      .circle:hover{
+          background:#0000CD
+      }
+      
+      .executed {
+          background: #4169E1;
+          color:white;
+      }
+      
+      .planned {
+          background: #C0C0C0;
+          color:white;
+      }
+      
+      
+      .box_shadow {
+          box-shadow: 0.4em 0.4em 5px rgba(122,122,122,0.5);
+      }
+      
+      .itog {
+          margin-top:4px;
+          display: inline;    
+          float:right;
+          text-decoration: underline;  
+      }
+      .itog:hover {
+          color:Blue;
+          text-decoration: underline;
+          cursor:pointer;
+      }
+      
+       .local_lbl
+       {    
+           padding: 2px;
+           font-size: 10pt;
+           background: white;
+           color: black;
+           border:1px solid;    
+           text-align : center;
+           width: 250px;
+           
+       }
+       

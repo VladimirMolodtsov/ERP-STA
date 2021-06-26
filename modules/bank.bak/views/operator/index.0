@@ -1,0 +1,157 @@
+<?php
+
+/* @var $this yii\web\View */
+
+use yii\helpers\Html;
+use yii\bootstrap\Modal;
+use yii\widgets\Pjax;
+
+$this->title = 'Банк - выписки';
+$this->params['breadcrumbs'][] = $this->title;
+
+ ?>
+
+
+<link rel="stylesheet" type="text/css" href="phone.css" />
+<script type="text/javascript" src="phone.js"></script> 
+
+
+<div class="item-header">Банковские операции:</div> 
+
+ <?php
+Pjax::begin();
+
+echo \yii\grid\GridView::widget(
+    [
+        'dataProvider' => $detailProvider,
+        'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => '&nbsp;'],
+        'tableOptions' => [ 'class' => 'table table-striped table-bordered table-small' ],
+        
+        'columns' => [
+            [
+                'class' => \yii\grid\SerialColumn::class,
+            ],  
+    
+           
+            [
+                'attribute' => 'recordDate',
+                'label'     => 'Дата',
+                'format' => 'raw',     
+                'value' => function ($model, $key, $index, $column) {                    
+                    return date("d.m.Y H:i:s", strtotime($model['recordDate'])+4*3600);
+               }
+                
+            ],            
+
+           [
+                'attribute' => 'debetOrgTitle',
+                'label'     => 'Плательщик',
+                'format' => 'raw',     
+            ],            
+
+            [
+                'attribute' => 'creditOrgTitle',
+                'label'     => 'Получатель',
+                'format' => 'raw',     
+            ],            
+                        
+            [
+                'attribute' => 'debetSum',
+                'label'     => 'Расход',
+                'format' => 'raw',            
+                'value' => function ($model, $key, $index, $column) {                    
+                    return number_format($model['debetSum'],2,',','&nbsp;');
+               }
+                
+            ],            
+
+            [
+                'attribute' => 'creditSum',
+                'label'     => 'Приход',
+                'format' => 'raw',            
+                'value' => function ($model, $key, $index, $column) {                    
+                    return number_format($model['creditSum'],2,',','&nbsp;');
+               }
+                
+            ],            
+           /****/
+        ],
+    ]
+); 
+Pjax::end(); 
+?>
+
+
+
+
+<div class="item-header">Загруженные выписки:</div> 
+<?php
+Pjax::begin();
+
+echo \yii\grid\GridView::widget(
+    [
+        'dataProvider' => $extractProvider,
+        'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => '&nbsp;'],
+        'columns' => [
+            [
+                'class' => \yii\grid\SerialColumn::class,
+            ],  
+             
+           [
+                'attribute' => 'uploadTime',
+                'label'     => 'Загружена',
+                'format' => 'raw', 
+                //'format' => ['datetime', 'php:d.m.Y H:i:s'],
+                'value' => function ($model, $key, $index, $column) {                    
+                    return date("d.m.Y H:i:s", strtotime($model['uploadTime'])+4*3600);
+               }
+               
+            ],         
+
+            [
+                'attribute' => 'creationDate',
+                'label'     => 'Дата создания',
+                'format' => 'raw',     
+                'value' => function ($model, $key, $index, $column) {                    
+                    return "<a href ='#' onclick=\"openWin('bank/operator/show-extract&id=".$model['id']."','childWin');\" >".date("d.m.Y h:i", strtotime($model['creationDate'])+4*3600)."</a>";
+               }
+                       
+            ],            
+
+            [
+                'attribute' => 'creditTurn',
+                'label'     => 'Поступления',
+                'format' => 'raw',            
+                'value' => function ($model, $key, $index, $column) {                    
+                    return number_format($model['creditTurn'],2,',','&nbsp;');
+               }
+                
+            ],            
+            
+                        
+            [
+                'attribute' => 'debetTurn',
+                'label'     => 'Расходы',
+                'format' => 'raw',            
+                'value' => function ($model, $key, $index, $column) {                    
+                    return number_format($model['debetTurn'],2,',','&nbsp;');
+               }
+                
+            ],            
+
+                        
+            [
+                'attribute' => 'userFIO',
+                'label'     => 'Оператор',
+                'format' => 'raw',            
+            ],            
+
+            /****/
+        ],
+    ]
+); 
+
+Pjax::end(); 
+?>
+
+<a href='index.php?r=bank/operator/load-bank' class='btn btn-primary'>Загрузить</a>

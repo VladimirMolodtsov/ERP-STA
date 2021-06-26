@@ -1,0 +1,38 @@
+  /*Ищем сопоставление*/           
+      for ($iO=0;$iO< $oN; $iO++)
+      {
+        if ($this->operationArray[$iO]['check'] != 0 ) continue; /* уже использовано */
+        if ($this->extractArray[$iE]['bankExtractRef'] == $this->operationArray[$iO]['ref_bank_extract']  )
+        {
+           /*Найдено подтвержденное сопоставление*/
+            $this->operationArray[$iO]['check'] = 2;
+        }
+        else {
+        
+                        
+        /*Расход*/
+            if( $this->extractArray[$iE]['D'] != $this->operationArray[$iO]['regDate'] ) continue;
+            if ($this->extractArray[$iE]['debetSum'] > 0)
+            {
+
+              if( $this->extractArray[$iE]['creditINN'] != $this->operationArray[$iO]['orgINN'] ) continue;              
+              if( $this->extractArray[$iE]['debetSum'] != (-1)*$this->operationArray[$iO]['recordSum'] ) continue;        
+              
+            }
+            if ($this->extractArray[$iE]['creditSum'] > 0)
+            {
+              if( $this->extractArray[$iE]['debetINN'] != $this->operationArray[$iO]['orgINN'] ) continue;
+              if( $this->extractArray[$iE]['creditSum'] != $this->operationArray[$iO]['recordSum'] ) continue;            
+            }
+
+           $this->operationArray[$iO]['check'] = 1;                
+        }
+            
+            $this->dataArray[$iE]['opRef'] = $this->operationArray[$iO]['opRef']; //
+            $this->dataArray[$iE]['opSum'] = $this->operationArray[$iO]['recordSum']; //
+            $this->dataArray[$iE]['opOrgTitle'] = $this->operationArray[$iO]['orgTitle']; //
+            $this->dataArray[$iE]['opRegDate'] = $this->operationArray[$iO]['regDate']; // 
+            break;           
+      }//iO
+        
+  

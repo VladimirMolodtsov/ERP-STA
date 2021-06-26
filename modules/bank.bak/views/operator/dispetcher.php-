@@ -1,0 +1,158 @@
+<?php
+
+/* @var $this yii\web\View */
+
+use yii\helpers\Html;
+//use yii\bootstrap\Modal;
+use yii\widgets\ActiveForm;
+
+$this->title = 'Банк - отслеживание загрузок выписок';
+$this->params['breadcrumbs'][] = $this->title;
+
+$logList = $model->getLogData();
+$refArray=array();
+$refArray[0]=-1;
+$refArray[1]=-1;
+$refArray[2]=-1;
+$refArray[3]=-1;
+
+$startTime = strtotime(date("Y-m-d"));//+4*3600;//
+
+$etap[0] = $startTime+9*3600; //9:10
+$etap[1] = $startTime+12*3600; //12:10
+$etap[2] = $startTime+15*3600; //15:10
+$etap[3] = $startTime+17*3600; //17:10
+
+for ($i=0; $i < count($logList); $i++)
+{
+  $curTime= strtotime($logList[$i]['actionDateTime'])+4*3600;
+  if ($curTime >= $etap[0] && $curTime < $etap[1])
+  {
+    if ($refArray[0]==-1)$refArray[0]=$i;    
+  }
+
+  if ($curTime >= $etap[1] && $curTime < $etap[2])
+  {
+    if ($refArray[1]==-1)$refArray[1]=$i;    
+  }
+
+  if ($curTime >= $etap[2] && $curTime < $etap[3])
+  {
+    if ($refArray[2]==-1)$refArray[2]=$i;    
+  }
+  
+  if ($curTime >= $etap[3])
+  {
+    if ($refArray[3]==-1)$refArray[3]=$i;    
+  }
+    
+}
+
+function showEtap($etap, $refArray, $logList)
+{
+  if ($refArray[$etap] == -1)
+  {
+  echo "<td colspan=2> Не исполнен </td>";
+  return;
+  }
+
+   $ref=$refArray[$etap];
+   $t = date("H:i:s", strtotime($logList[$ref]['actionDateTime'])+4*3600);
+   echo "<td >".$t. "</td>";
+   echo "<td >". $logList[$ref]['userFIO']."</td>";  
+}
+
+ ?>
+
+
+<link rel="stylesheet" type="text/css" href="phone.css" />
+<script type="text/javascript" src="phone.js"></script> 
+
+<table class='table table-stripped'>
+<thead>
+<tr>
+    <th>Контрольная точка</th>
+    <th>Действие</th>
+    <th>Время выполнения</th>
+    <th>Исполнитель</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+    <td>9:10 </td>
+    <td>Загрузка выписки</td>
+    <?php showEtap(0, $refArray, $logList);?> 
+   
+</tr>
+
+<tr>
+    <td>12:10 </td>
+    <td>Загрузка выписки</td>
+    <?php showEtap(1, $refArray, $logList);?> 
+</tr>
+
+<tr>
+    <td>15:10 </td>
+    <td>Загрузка выписки</td>
+    <?php showEtap(2, $refArray, $logList);?> 
+</tr>
+
+<tr>
+    <td>17:10 </td>
+    <td>Загрузка выписки</td>
+    <?php showEtap(3, $refArray, $logList);?> 
+</tr>
+
+
+</tbody>
+</table>
+
+
+
+<hr>
+<div class="item-header">Загруженные выписки:</div> 
+<?= \yii\grid\GridView::widget(
+    [
+        'dataProvider' => $provider,
+        'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => '&nbsp;'],
+        'columns' => [
+            [
+                'class' => \yii\grid\SerialColumn::class,
+            ],  
+             
+           [
+                'attribute' => 'uploadTime',
+                'label'     => 'Загружена',
+                'format' => 'raw', 
+                //'format' => ['datetime', 'php:d.m.Y H:i:s'],
+                'value' => function ($model, $key, $index, $column) {                    
+                    return date("d.m.Y H:i:s", strtotime($model['uploadTime'])+4*3600);
+               }
+               
+            ],         
+
+            [
+                'attribute' => 'creationDate',
+                'label'     => 'Дата создания',
+                'format' => 'raw',     
+                'value' => function ($model, $key, $index, $column) {                    
+                    return "<a href ='#' onclick=\"openWin('bank/operator/show-extract&id=".$model['id']."','childWin');\" >".date("d.m.Y H:i:s", strtotime($model['creationDate'])+4*3600)."</a>";
+               }
+                       
+            ],            
+                                    
+            [
+                'attribute' => 'userFIO',
+                'label'     => 'Оператор',
+                'format' => 'raw',            
+            ],            
+
+            /****/
+        ],
+    ]
+); 
+
+?>
+
+
