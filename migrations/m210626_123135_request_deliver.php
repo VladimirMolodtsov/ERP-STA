@@ -3,16 +3,16 @@
 use yii\db\Migration;
 
 /**
- * Class m210621_113046_user
+ * Class m210626_123135_request_deliver
  */
-class m210621_113046_user extends Migration
+class m210626_123135_request_deliver extends Migration
 {
     /**
      * {@inheritdoc}
      */
     public function safeUp()
     {
-        $this->addColumn('{{%user}}', 'userNote', $this->string(250));
+         $this->addColumn('{{%request_deliver}}', 'requestUPDDate', $this->date());
     }
 
     /**
@@ -20,8 +20,7 @@ class m210621_113046_user extends Migration
      */
     public function safeDown()
     {
-        $this->dropColumn('{{%user}}', 'userNote');
-        return true;
+        $this->dropColumn('{{%request_deliver}}', 'requestUPDDate');
     }
 
     /*
@@ -33,7 +32,7 @@ class m210621_113046_user extends Migration
 
     public function down()
     {
-        echo "m210621_113046_user cannot be reverted.\n";
+        echo "m210626_123135_request_deliver cannot be reverted.\n";
 
         return false;
     }

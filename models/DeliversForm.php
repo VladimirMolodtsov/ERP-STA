@@ -44,7 +44,7 @@ class DeliversForm extends Model
     public $requestExpValue=0;
     public $requestExecutorType = 1;
     
-    
+    public $requestUPDDate="";
     
     public $requestCashReal =0;
     public $requestRealSize =0;
@@ -137,7 +137,7 @@ class DeliversForm extends Model
             'requestNote','requestSclad','requestExecutor','refOrg', 'requestStatus', 'requestScladAdress', 'scladRef',
             'requestCashReal', 'requestRealSize','requestDateReal', 'requestTime', 'requestUPD', 'requestExpValue',
             'requestCategory', 'requestPlaces', 'requestVolume', 'requestTotalWeight', 'factDate', 'refFromOrg',
-            'factWeight','factValue', 'supplyType', 'requestExecutorType' ], 'default'],
+            'factWeight','factValue', 'supplyType', 'requestExecutorType', 'requestUPDDate' ], 'default'],
             ['id', 'integer'],
             ['refOrg', 'integer'],            
             ['refFromOrg', 'integer'],            
@@ -521,7 +521,8 @@ class DeliversForm extends Model
     $this->requestTime =$deliverRecord->request_time;
     $this->requestExpValue =$deliverRecord->request_exp_value;    
     $this->requestUPD =$deliverRecord->requestUPD;
-   
+    if (!empty($deliverRecord->requestUPDDate))
+        $this->requestUPDDate=date("d.m.Y", strtotime($deliverRecord->requestUPDDate));
     
     
     if (empty ($deliverRecord->requestDateReal)) {$this->requestDateReal =date ('d.m.Y');}    
@@ -942,6 +943,9 @@ public function printPageReestrTTN ($deliversListData)
     $deliverRecord->request_exp_value = $this->requestExpValue;
     
     $deliverRecord->requestUPD =$this->requestUPD;
+    if (!empty($this->requestUPDDate)){
+        $deliverRecord->requestUPDDate = date("Y-m-d", strtotime($this->requestUPDDate));
+    }
     
     /*Запомним склад*/
     if (!empty($this->requestSclad))

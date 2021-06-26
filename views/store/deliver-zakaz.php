@@ -308,7 +308,8 @@ function closeScladList()
 	<td width="200px"  style='vertical-align:top; padding:10px;' ><b>Доставка назначена:</b> </td>
 	<td><?= $form->field($model, 'requestDateReal')->textInput(['class' => 'tcal','style'=>'width:100px;'])->label(false)?> </td>    
     <td width="50px" style='vertical-align:top; padding:10px;' ><b>УПД:</b> </td>
-	<td width="150px"><?= $form->field($model, 'requestUPD')->textInput(['style'=>'height:30px; width:150px; margin:0px; padding:0px; left:0px','id'=>'requestUPD' ])->label(false)?>  </td>    
+	<td width="100px"><?= $form->field($model, 'requestUPD')->textInput(['style'=>'height:30px; width:100px; margin:0px; padding:0px; left:0px','id'=>'requestUPD' ])->label(false)?>  </td>    
+	<td><?= $form->field($model, 'requestUPDDate')->textInput(['class' => 'tcal','style'=>'width:100px;'])->label(false)?> </td>    	
     <td width="75px" style='vertical-align:top; padding:10px;' >
     <?php
     if ( $deliverRecord->isRefSupply < 0)
