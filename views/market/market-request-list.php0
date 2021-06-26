@@ -1,0 +1,121 @@
+<?php
+
+/* @var $this yii\web\View */
+
+use yii\helpers\Html;
+use yii\grid\GridView;
+
+$this->title = 'Заявки на доставку';
+$curUser=Yii::$app->user->identity;
+
+?>
+<h3><?= Html::encode($this->title) ?></h3>
+<style>
+
+.local_btn {
+	font-size: 12px;
+	margin:4px;
+	padding:4px;
+	width:100px;
+} 
+
+</style>
+ 
+<script type="text/javascript" src="phone.js"></script>  
+
+<?php
+		 
+echo \yii\grid\GridView::widget(
+    [
+        'dataProvider' => $provider,
+		//'filterModel' => $model,
+		'formatter' => ['class' => 'yii\i18n\Formatter','nullDisplay' => '&nbsp;'],
+        'columns' => [
+            [
+                'class' => \yii\grid\SerialColumn::class,
+            ],
+		                
+			[
+                'attribute' => 'id',
+				'label' => 'Заявка',
+                'format' => 'raw',
+                'value' => function ($model, $key, $index, $column) {
+				 $val ="<b>".$model['id']."</b>"." от ".date("d.m.y",strtotime($model['requestDate']));
+				 if (!empty ($model['execNum'])) $val.="<br>".$model['execNum'];
+				 return $val;
+                }
+            ],	
+			
+			[
+                'attribute' => 'schetNum',
+				'label' => 'Счет',
+                'format' => 'raw',
+                'value' => function ($model, $key, $index, $column) {
+				 return $model['schetNum']." от ".date("d.m.Y",strtotime($model['schetDate']))."<br> на сумму: ".number_format($model['schetSumm'], 2, '.', ' ');
+                }
+            ],	
+			
+			
+            [
+                'attribute' => 'supplyDate',
+				'label'     => 'Дата отгрузки',
+                'format' => ['datetime', 'php:d.m.Y'],
+            ],			
+			[
+                'attribute' => 'title',
+				'label' => 'Клиент',
+                'format' => 'raw',
+            ],	
+            [
+                'attribute' => 'supplyState',
+				'label'     => 'Статус',                
+                'format' => 'raw',
+
+                'value' => function ($model, $key, $index, $column) {
+					$val ="";
+					if ($model['supplyState'] == 0) 
+					{
+						return "<input class='btn btn-warning local_btn'  type=button value='Ожидает' onclick='javascript:openWin(\"market/market-request-supply&schetId=".$model['refSchet']."\", \"supplyWin\");'>";
+				    }  
+	
+/*	
+  0x00001 - Принята к исполнению
+  0x00002 - Передана экспедитору
+  0x00004 - Отказ
+*/  
+
+					if ($model['supplyState'] & 0x00004) 
+					{
+						return "<input class='btn btn-danger local_btn'  type=button value='Отказ' onclick='javascript:openWin(\"store/supply-request&viewMode=market&id=".$model['id']."\", \"supplyWin\");'>";
+				    }  
+			
+					if ($model['supplyState'] & 0x00008) 
+					{
+						return "<input class='btn btn-success local_btn' style='background-color: ForestGreen;' type=button value='Доставлен' onclick='javascript:openWin(\"store/supply-request&viewMode=market&id=".$model['id']."\", \"supplyWin\");'>";
+				    }  
+
+			
+					if ($model['supplyState'] & 0x00002) 
+					{
+						return "<input class='btn btn-success local_btn'  type=button value='Доставляется' onclick='javascript:openWin(\"store/supply-request&viewMode=market&id=".$model['id']."\", \"supplyWin\");'>";
+				    }  
+					
+					if ($model['supplyState'] & 0x00001) 
+					{
+					   return "<input class='btn btn-success local_btn'  type=button value='Принято' onclick='javascript:openWin(\"store/supply-request&viewMode=market&id=".$model['id']."\", \"supplyWin\");'>";
+				    }  
+																
+
+                return "";
+				}
+				
+            ],
+
+ 
+			
+            
+        ],
+    ]
+);
+
+?>

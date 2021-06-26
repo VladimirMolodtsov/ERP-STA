@@ -1,0 +1,99 @@
+  `typeRef` BIGINT(20) DEFAULT 0 COMMENT 'ссылка на тип',
+  `ownerOrgRef` BIGINT(20) DEFAULT 0,
+  `goodRef` BIGINT(20) DEFAULT 0,
+  `wareEdValueRef` BIGINT(20) DEFAULT 0,
+  `wareCostValue` DOUBLE DEFAULT 0,
+  `wareCostPrice` DOUBLE DEFAULT 0,
+  `wareCostCount` DOUBLE DEFAULT 0,
+  `wareCostAdd` DOUBLE DEFAULT 0,
+  `isAdditionWare` TINYINT(4) DEFAULT 0,
+  
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `typeRef` BIGINT DEFAULT 0 COMMENT 'ссылка на тип';
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `wareEdValueRef` BIGINT DEFAULT 0;
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `wareCostValue` DOUBLE DEFAULT 0;
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `wareCostPrice` DOUBLE DEFAULT NULL;
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `wareCostCount` DOUBLE DEFAULT NULL;
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `wareCostAdd` DOUBLE DEFAULT 0;
+  ALTER TABLE `rik_supplier_wares` ADD COLUMN `isAdditionWare` TINYINT DEFAULT 0;
+  
+  ALTER TABLE `rik_supplier_wares` ADD INDEX `rik_supplier_wares_idx1` (`requestDate`);
+  ALTER TABLE `rik_supplier_wares` ADD INDEX `rik_supplier_wares_idx2` (`ref1C`);
+  ALTER TABLE `rik_supplier_wares` ADD INDEX `rik_supplier_wares_idx3` (`wareTitle`);
+  ALTER TABLE `rik_supplier_wares` ADD INDEX `rik_supplier_wares_idx4` (`orgINN`);
+  ---
+  ALTER TABLE `rik_control_purch_content` ADD INDEX `rik_control_purch_content_idx5` (`ref1C`);
+  ALTER TABLE `rik_control_purch_content` ADD INDEX `rik_control_purch_content_idx6` (`purchDate`);
+  ALTER TABLE `rik_control_purch_content` ADD INDEX `rik_control_purch_content_idx7` (`orgINN`);
+  
+  ALTER TABLE `rik_control_purch_content` ADD COLUMN `inDate` DATE DEFAULT NULL;
+  ALTER TABLE `rik_control_purch_content` ADD COLUMN `inNum` VARCHAR(20) DEFAULT NULL;
+  
+  --
+  CREATE TABLE `rik_control_purch_content` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `ownerOrgTitle` VARCHAR(250) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Наша организация - получатель',
+  `orgTitle` VARCHAR(250) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Контрагент',
+  `orgINN` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL,
+  `orgKPP` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL,
+  `orgRef` BIGINT(20) DEFAULT 0,
+  `ref1C` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Номер заказа в 1С',
+  `purchDate` DATE DEFAULT NULL,
+  `regRecord` VARCHAR(150) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Наименование заказа в 1с - полный текст',
+  `purchTitle` VARCHAR(150) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Номенклатура',
+  `purchEd` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL,
+  `purchCount` DOUBLE DEFAULT 0,
+  `purchSum` DOUBLE DEFAULT 0,
+  `headerRef` BIGINT(20) DEFAULT 0,
+  `typeRef` BIGINT(20) DEFAULT 0 COMMENT 'ссылка на тип',
+  `ownerOrgRef` BIGINT(20) DEFAULT 0,
+  `goodRef` BIGINT(20) DEFAULT 0,
+  `wareEdValueRef` BIGINT(20) DEFAULT 0,
+  `wareCostValue` DOUBLE DEFAULT 0,
+  `wareCostPrice` DOUBLE DEFAULT 0,
+  `wareCostCount` DOUBLE DEFAULT 0,
+  `wareCostAdd` DOUBLE DEFAULT 0,
+  `isAdditionWare` TINYINT(4) DEFAULT 0,
+  PRIMARY KEY USING BTREE (`id`),
+  UNIQUE KEY `id` USING BTREE (`id`),
+  KEY `rik_control_purch_content_idx1` USING BTREE (`purchTitle`),
+  KEY `rik_control_purch_content_idx2` USING BTREE (`goodRef`),
+  KEY `rik_control_purch_content_idx3` USING BTREE (`purchTitle`),
+  KEY `rik_control_purch_content_idx4` USING BTREE (`purchEd`)
+) ENGINE=InnoDB
+AUTO_INCREMENT=277 ROW_FORMAT=DYNAMIC CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
+;
+
+
+CREATE TABLE `rik_supplier_wares` (
+  `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+  `requestDate` DATE DEFAULT NULL COMMENT 'Дата счета',
+  `ref1C` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Ссылка в 1С',
+  `orgINN` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'ИНН поставщика',
+  `orgKPP` VARCHAR(20) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'КПП Поставщика',
+  `orgTitle` VARCHAR(250) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Поставщик',
+  `wareTitle` VARCHAR(150) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Наименование',
+  `wareCount` INTEGER(11) DEFAULT 0 COMMENT 'К-во',
+  `wareEd` VARCHAR(10) COLLATE utf8_general_ci DEFAULT NULL COMMENT 'Единица измерения',
+  `wareSumm` DOUBLE DEFAULT 0 COMMENT 'Суммарная стоимость',
+  `refOrg` BIGINT(20) DEFAULT NULL COMMENT 'ссылка на организацию поставщика',
+  `wareRef` BIGINT(20) DEFAULT 0 COMMENT 'ссылка на склад',
+  `supplierSchetRef` BIGINT(20) DEFAULT 0 COMMENT 'ссылка на счет поставщика',
+  `requestNum` VARCHAR(20) GENERATED ALWAYS AS (`ref1c`) VIRTUAL,
+  `typeRef` BIGINT(20) DEFAULT 0 COMMENT 'ссылка на тип',
+  `wareEdValueRef` BIGINT(20) DEFAULT 0,
+  `wareCostValue` DOUBLE DEFAULT 0,
+  `wareCostPrice` DOUBLE DEFAULT 0,
+  `wareCostCount` DOUBLE DEFAULT NULL,
+  `wareCostAdd` DOUBLE DEFAULT 0,
+  `isAdditionWare` TINYINT(4) DEFAULT 0,
+  PRIMARY KEY USING BTREE (`id`),
+  UNIQUE KEY `id` USING BTREE (`id`),
+  KEY `rik_supplier_schet_idx1` USING BTREE (`refOrg`),
+  KEY `rik_supplier_schet_idx2` USING BTREE (`wareRef`),
+  KEY `rik_supplier_wares_idx1` USING BTREE (`requestDate`),
+  KEY `rik_supplier_wares_idx2` USING BTREE (`ref1C`),
+  KEY `rik_supplier_wares_idx3` USING BTREE (`wareTitle`),
+  KEY `rik_supplier_wares_idx4` USING BTREE (`orgINN`)
+) ENGINE=InnoDB
+AUTO_INCREMENT=17051 ROW_FORMAT=DYNAMIC CHARACTER SET 'utf8' COLLATE 'utf8_general_ci'
+;
