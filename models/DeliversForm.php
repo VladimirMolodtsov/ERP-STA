@@ -192,7 +192,8 @@ class DeliversForm extends Model
     $statusRecord->save();
     return true;
   }
-  
+
+    
   public function  deleteDeliver($id)
   {
        Yii::$app->db->createCommand(
@@ -620,6 +621,34 @@ class DeliversForm extends Model
     return $deliverRecord;        
   }
 
+ 
+/****************************************************************************************/
+ /**
+ * Get array with our sclad list 
+ * @param 
+ * @return array with sladTitle
+ * @throws 
+ */       
+  
+  public function  getScladList()
+  {
+  
+
+   $srcList = Yii::$app->db->createCommand(
+            'SELECT DISTINCT requestScladAdress  from {{%request_deliver}}
+            where DATEDIFF(NOW(), requestDatePlanned) < 90
+            ', 
+            )->queryAll();          
+   $N = count ($srcList);
+   $list=[];
+   for ($i=0;$i < $N; $i++)
+   {
+       $k=$srcList[$i]['requestScladAdress']; 
+       $list[$k]=$k;   
+   }      
+   return $list;   
+  }  
+    
   
  /****************************************************************************************/
  /**
@@ -1545,6 +1574,7 @@ echo
             [
                 'attribute' => 'requestScladAdress',
                 'label' => 'Склад',
+                'filter' => $this->getScladList(),
                 'format' => 'raw',
                 'contentOptions' => ['style' =>'font-size:12px'],
             ],        
