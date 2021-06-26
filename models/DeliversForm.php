@@ -810,7 +810,7 @@ echo "<div style='height:100px;'></div>";
 
 /****************************************************************************************/
  /**
- * Output spacer between two copies of TTN
+ * Output TTN with reestr
  * @param init by $this->prepareDeliver()
  * @return HTML code for TTN
  * @throws 
@@ -837,6 +837,9 @@ public function printAllTTN ($deliversListData)
 
     $this->printReestrTTN($deliversListData);
     echo "<div class='pbreak'></div>";
+    $this->printReestrTTN($deliversListData);
+    echo "<div class='pbreak'></div>";
+    
     for ($i=0;$i<count($deliversListData);$i++)
     {
         $this->id= $deliversListData[$i]['id'];
@@ -844,6 +847,40 @@ public function printAllTTN ($deliversListData)
         echo "<div class='pbreak'></div>";
     }
 }
+
+/****************************************************************************************/
+ /**
+ * Output page with reestr only
+ * @param init by $this->prepareDeliver()
+ * @return HTML code for TTN
+ * @throws 
+ */      
+public function printPageReestrTTN ($deliversListData)
+{
+
+ echo "
+<style> 
+ @media print {
+    .pbreak {
+     page-break-after: always;
+    } 
+   } 
+
+   table {   
+   border-collapse: collapse;   
+   }
+   td {
+   padding:2px;
+   }
+</style>
+";
+
+    $this->printReestrTTN($deliversListData);
+    echo "<div class='pbreak'></div>";
+    $this->printReestrTTN($deliversListData);
+    echo "<div class='pbreak'></div>";    
+}
+
   
 /*************************************************************/  
   public function saveFinalizeData    ()
@@ -1842,6 +1879,8 @@ echo
 <a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=csv&noframe=1', 'printWin');\"> Выгрузить маршрутный лист</a>
 &nbsp;&nbsp;&nbsp;
 <a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=ttn&noframe=1', 'printWin');\"> список ТТН</a>
+&nbsp;&nbsp;&nbsp;
+<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=reestr&noframe=1', 'printWin');\"> реестр</a>
 
 </div>
 

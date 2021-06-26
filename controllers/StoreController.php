@@ -500,31 +500,19 @@ class StoreController extends Controller
 
         if ($format == 'ttn')
         {
-            switch ($detail)
-            {
-                
-                case 4:
                     $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());        
                     $deliverModel->printAllTTN($deliversListData);
                     exit(0);
-                break;
-                case 5:
-                    $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());        
-                    $deliverModel->printAllTTN($deliversListData);
-                    exit(0);
-                break;
-                case 6:
-                    $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());        
-                    $deliverModel->printAllTTN($deliversListData);
-                    exit(0);
-                break;
-                case 15:
-                    $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());        
-                    $deliverModel->printAllTTN($deliversListData);
-                    exit(0);
-                break;
-            }            
         }
+        
+        if ($format == 'reestr')
+        {
+                    $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());        
+                    $deliverModel->printPageReestrTTN($deliversListData);
+                    exit(0);
+        }
+        
+
 
         if ($format == 'print2')
         {
