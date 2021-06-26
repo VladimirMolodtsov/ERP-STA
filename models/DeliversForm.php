@@ -637,8 +637,7 @@ class DeliversForm extends Model
    $srcList = Yii::$app->db->createCommand(
             'SELECT DISTINCT requestScladAdress  from {{%request_deliver}}
             where DATEDIFF(NOW(), requestDatePlanned) < 90
-            ', 
-            )->queryAll();          
+            ')->queryAll();          
    $N = count ($srcList);
    $list=[];
    for ($i=0;$i < $N; $i++)
@@ -1576,7 +1575,7 @@ echo
                 'label' => 'Склад',
                 'filter' => $this->getScladList(),
                 'format' => 'raw',
-                'contentOptions' => ['style' =>'font-size:12px'],
+                'contentOptions' => ['style' =>'font-size:11px'],
             ],        
 
             

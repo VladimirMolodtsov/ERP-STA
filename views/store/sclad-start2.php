@@ -147,10 +147,10 @@ th, td {
 }
 
 .local_btn {
-	font-size: 12px;
+	font-size: 11px;
 	margin:4px;
 	padding:4px;
-	width:100px;
+	width:90px;
 } 
 
 .local_lbl
