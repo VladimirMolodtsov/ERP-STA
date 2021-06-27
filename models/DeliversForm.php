@@ -661,12 +661,14 @@ public function printReestrUTR ($deliversListData)
 {
 
  echo "
-    <h4>Реестр УТР</h4>
+    <h4>Реестр УПД</h4>
 
     <table border='1' width='100%'>
 
 <tr>
 	<td><b>№</b></td>
+	<td><b>Со склада</b></td>
+	<td><b>Адрес склада</b></td>
 	<td><b>Дата</b></td>
   	<td><b>№ УПД</b></td>
     <td><b>Получатель</b></td>
@@ -681,6 +683,8 @@ for ($i=0;$i<$N;$i++)
 echo "
 <tr>
 	<td>".($i+1)."</td>
+	<td>".$deliversListData[$i]['requestSclad']."</td>
+	<td>".$deliversListData[$i]['requestScladAdress']."</td>
   	<td>".date("d.m.Y", strtotime($deliversListData[$i]['requestDateReal']))."</td>
     <td>".$deliversListData[$i]['requestUPD']."</td>
     <td>".$deliversListData[$i]['title']."</td>
@@ -1976,7 +1980,7 @@ echo
 &nbsp;&nbsp;&nbsp;
 <a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=reestr&noframe=1', 'printWin');\"> Реестр ТТН</a>
 &nbsp;&nbsp;&nbsp;
-<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=utr&noframe=1', 'printWin');\"> УТР</a>
+<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=utr&noframe=1', 'printWin');\"> УПД</a>
 
 </div>
 
