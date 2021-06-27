@@ -649,7 +649,91 @@ class DeliversForm extends Model
    return $list;   
   }  
     
-  
+
+ /****************************************************************************************/
+ /**
+ * Output UTR Reestr
+ * @param $this->id must be set
+ * @return HTML code for UTR
+ * @throws
+ */
+public function printReestrUTR ($deliversListData)
+{
+
+ echo "
+    <h4>Реестр УТР</h4>
+
+    <table border='1' width='100%'>
+
+<tr>
+	<td><b>№</b></td>
+	<td><b>Дата</b></td>
+  	<td><b>№ УПД</b></td>
+    <td><b>Получатель</b></td>
+    <td><b>Сумма</b></td>
+</tr>
+";
+
+$N= count($deliversListData);
+$sum=0;
+for ($i=0;$i<$N;$i++)
+{
+echo "
+<tr>
+	<td>".($i+1)."</td>
+  	<td>".date("d.m.Y", strtotime($deliversListData[$i]['requestDateReal']))."</td>
+    <td>".$deliversListData[$i]['requestUPD']."</td>
+    <td>".$deliversListData[$i]['title']."</td>
+    <td>".number_format($deliversListData[$i]['sumValue'], 2, '.','&nbsp;')."</td>
+</tr>
+";
+$sum+=$deliversListData[$i]['sumValue'];
+}
+echo "
+</table>
+
+<div  style='text-align:right;'>
+<b> Итого </b> &nbsp;&nbsp; ". number_format($sum,2,'.','&nbsp;')."
+</div>
+<hr noshade style='height:3px;border:none;color:#333;background-color:Black;'>
+";
+}
+
+/****************************************************************************************/
+ /**
+ * Output page with UTR reestr only
+ * @param init by $this->prepareDeliver()
+ * @return HTML code for TTN
+ * @throws
+ */
+public function printPageReestrUTR ($deliversListData)
+{
+
+ echo "
+<style>
+ @media print {
+    .pbreak {
+     page-break-after: always;
+    }
+   }
+
+   table {
+   border-collapse: collapse;
+   }
+   td {
+   padding:2px;
+   }
+</style>
+";
+
+    $this->printReestrUTR($deliversListData);
+    echo "<div class='pbreak'></div>";
+    $this->printReestrUTR($deliversListData);
+    echo "<div class='pbreak'></div>";
+}
+
+
+
  /****************************************************************************************/
  /**
  * Output TTN 
@@ -703,7 +787,8 @@ echo "
 ";        
 }
  
-    
+
+
  /****************************************************************************************/
  /**
  * Output TTN 
@@ -722,6 +807,10 @@ public function printSingleTTN ($deliverRecord)
 <tr>
     <td width='200px'>Поставщик</td>
     <td><b>".$this->orgFromTitle."</b></td>
+<tr>
+<tr>
+    <td width='200px'>Со склада</td>
+    <td><b>".$deliverRecord->requestScladAdress."</b></td>
 <tr>
 
 <tr>
@@ -1290,7 +1379,8 @@ public function printPageReestrTTN ($deliversListData)
     '{{%request_deliver}}.refSchet',
     'requestCategory',
     'requestPlaces',
-    'sum({{%request_deliver_content}}.requestCount) as sumCount'
+    'sum({{%request_deliver_content}}.requestCount) as sumCount',
+    'sum({{%request_deliver_content}}.requestCount * {{%request_deliver_content}}.requestGoodValue) as sumValue',
     ])
             ->from("{{%request_deliver}}")
             ->leftJoin('{{%request_deliver_content}}','{{%request_deliver}}.id = {{%request_deliver_content}}.requestDeliverRef')
@@ -1884,7 +1974,9 @@ echo
 &nbsp;&nbsp;&nbsp;
 <a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=ttn&noframe=1', 'printWin');\"> список ТТН</a>
 &nbsp;&nbsp;&nbsp;
-<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=reestr&noframe=1', 'printWin');\"> реестр</a>
+<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=reestr&noframe=1', 'printWin');\"> Реестр ТТН</a>
+&nbsp;&nbsp;&nbsp;
+<a href='#' onclick=\"openExtWin('index.php?".Yii::$app->request->queryString."&format=utr&noframe=1', 'printWin');\"> УТР</a>
 
 </div>
 

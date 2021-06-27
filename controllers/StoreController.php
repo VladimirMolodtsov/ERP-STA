@@ -512,6 +512,15 @@ class StoreController extends Controller
                     exit(0);
         }
         
+        if ($format == 'utr')
+        {
+                    $deliversListData= $deliverModel->getDeliversListData(Yii::$app->request->get());
+                    $deliverModel->printPageReestrUTR($deliversListData);
+                    exit(0);
+        }
+
+
+
 
 
         if ($format == 'print2')
