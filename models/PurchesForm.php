@@ -1303,11 +1303,6 @@ public function unlinkSchet($lnkid)
         $lnkRecord->purchRef = intval($this->recordId);
         $lnkRecord->controlRef = intval($this->dataId);
 
-        $lnkRecord = TblPurchControlLnk::findOne([
-         'purchRef' => intval($this->recordId),
-         'controlRef' => intval($this->dataId)
-        ]);
-
         $controRec= TblControlPurchContent::findOne(intval($this->dataId));
         if(!empty($controRec))
         {
@@ -3502,6 +3497,15 @@ public function preparePurchaseDocList($params)
         
      }
    
+      if (empty($this->orgTitle)){
+        $this->orgTitle = $this->fltOrgTitle;
+        $query->andFilterWhere(['like', '{{%documents}}.orgTitle', $this->orgTitle]);
+      } else
+      {
+        $query->andFilterWhere(['like', '{{%documents}}.orgTitle', $this->orgTitle]);
+      }
+
+
    
      if (!empty($this->fromDate)){               
         $fromDT = strtotime($this->fromDate);   

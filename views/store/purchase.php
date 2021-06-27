@@ -1191,13 +1191,25 @@ $content= \yii\grid\GridView::widget([
 
                 
                 $action ="chngControl(".$model['id'].",2,'".$orgTitle."','".$fromDate."','".$toDate."');";
-                
+
+                $strSql = "Select "
+
+                /*Add linked doc
+
+                  $lnkRecord->purchRef = intval($this->recordId);
+                  $lnkRecord->controlRef = intval($this->dataId);
+
+
+
+
+                */
+
                 if (empty($model['ref1C'])) {
                     $class = 'clickable';
                     $val ="---";
                 }
                 else {                     
-                    if (empty($model['inNum'])) $val =' ';
+                    if (empty($model['inNum'])) $val ='№  ';
                     else $val = $model['inNum']."<br>".$model['inDate'];
                 }
                 
@@ -1844,7 +1856,7 @@ echo $form->field($model, 'dataId' )->hiddenInput(['id' => 'dataId' ])->label(fa
 echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
 echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
 
-//echo "<input type='submit'>";
+echo "<input type='submit'>";
 ActiveForm::end(); 
 ?>
   
