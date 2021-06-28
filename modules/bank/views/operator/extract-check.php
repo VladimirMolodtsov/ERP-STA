@@ -555,7 +555,7 @@ $form = ActiveForm::begin(['id' => 'saveDataForm', 'action' => 'index.php?r=/ban
 echo $form->field($detailModel, 'recordId' )->hiddenInput(['id' => 'recordId' ])->label(false);
 echo $form->field($detailModel, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
 echo $form->field($detailModel, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
-echo "<input type='submit'>";
+//echo "<input type='submit'>";
 ActiveForm::end(); 
 ?>
 
