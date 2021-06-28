@@ -896,7 +896,13 @@ public function prepareBankExtractShowProvider($params)
    }
    
 
-   
+/****************************************************************************************/
+ /**
+ * Выводит подготовленную для печати таблицу с выписками
+ * @param $params - GET  строка с параметрами фильтрации для провайдера
+ * @return $html - строка с HTML разметкой
+ * @throws
+ */
 public function printBankExtractShowData ($params)		
    {
         $this->prepareBankExtractShowProvider($params);   		
@@ -914,6 +920,9 @@ public function printBankExtractShowData ($params)
 
    
    $html = "";
+
+   $html .= "<p>Период с ".date("d.m.y",strtotime($this->fromDate))." по ".date('d.m.Y',strtotime($this->toDate))."</p>";
+
          
    $html .="<table class='table table-bordered' style='border:solid 2px; border-collapse: collapse' border='1'  >\n";       
    $html .="<tr>\n";        
@@ -1027,7 +1036,8 @@ public function printBankExtractShort ($params)
         $dataList=$this->command->queryAll() ;
    
    $html = "";
-         
+   $html .= "<p>Период с ".date("d.m.y",strtotime($this->fromDate))." по ".date('d.m.Y',strtotime($this->toDate))."</p>";
+
    $html .="<table class='table table-bordered' style='border:solid 2px; border-collapse: collapse' border='1'  >\n";       
    $html .="<tr>\n";        
    

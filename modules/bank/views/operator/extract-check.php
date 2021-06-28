@@ -180,9 +180,10 @@ function setErrFilter (d,month,year){
     </div>
     
     <div  style='text-align:right; margin-top:10px;'>
-        <a class='btn btn-primary' href='index.php?<?=Yii::$app->request->queryString?>&format=print' target='_blank' ><span class='glyphicon glyphicon-print'></span></a> 
-        &nbsp;
-        <a class='btn btn-default' href='index.php?<?=Yii::$app->request->queryString?>&format=short' target='_blank' ><span class='glyphicon glyphicon-print'></span></a> 
+        <a class='btn btn-primary' style="width:130px; margin:2px;" href='index.php?<?=Yii::$app->request->queryString?>&format=print' target='_blank' ><span>
+        Печать списка</span></a>
+               <a class='btn btn-default'  style="width:130px; margin:2px;" href='index.php?<?=Yii::$app->request->queryString?>&format=short' target='_blank' ><span>
+        Краткий формат</span></a>
     </div>
     
     
