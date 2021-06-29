@@ -276,15 +276,27 @@ echo GridView::widget(
 
  <tr>
   <td class='lbl'>  Тип  </td> 
-  <td class='data'> <?= $form->field($model, 'wareType')->dropDownList($model->getWareTypes(), ['class' => 'form-control form-small', 'style' => 'margin-top:0px;width:200px'])->label(false)?>
+  <td class='data'> <?= $form->field($model, 'wareType')->dropDownList($model->getWareTypes(), 
+  ['class' => 'form-control form-small', 
+  'style' => 'margin-top:0px;width:200px',
+  'prompt' => 'Тип товара (не задан)'
+  ])->label(false)?>
    </td>
             
   <td class='lbl'> Группа   </td> 
-  <td class='data'> <?= $form->field($model, 'wareGroup')->dropDownList($model->getWareGroups(), ['class' => 'form-control form-small', 'style' => 'margin-top:0px;width:200px'])->label(false)?>
+  <td class='data'> <?= $form->field($model, 'wareGroup')->dropDownList($model->getWareGroups(), 
+  ['class' => 'form-control form-small', 
+  'style' => 'margin-top:0px;width:200px',
+  'prompt' => 'Группа/вид товара (не задан)'
+  ])->label(false)?>
    </td>  
 
   <td class='lbl'> Производитель   </td>
-  <td class='data'> <?= $form->field($model, 'wareProducer')->dropDownList($model->getWareProducer(), ['class' => 'form-control form-small', 'style' => 'margin-top:0px;width:200px'])->label(false)?>
+  <td class='data'> <?= $form->field($model, 'wareProducer')->dropDownList($model->getWareProducer(), 
+  ['class' => 'form-control form-small', 
+  'style' => 'margin-top:0px;width:200px',
+  'prompt' => 'Производитель товара (не задан)'
+  ])->label(false)?>
    </td>
 
    
@@ -295,6 +307,7 @@ echo GridView::widget(
                   'class'   => 'clickable glyphicon glyphicon-cog',
                   'id'      => 'config',
                   'onclick' => "openWin('store/ware-config','cfgWin')",          
+                  'title'   => "Добавить/отредактировать классификацию товара"
                ]);
             ?>    
 </td>
