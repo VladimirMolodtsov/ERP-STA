@@ -557,7 +557,7 @@ class MarketPrintForm extends Model
          $page .= "Поставщик:";        
          $page .= "</td>";
 
-         $page .= "<td >"; 
+         $page .= "<td style='width:824px;'>"; 
          $page .= $ownerRecord->orgFullTitle.", ИНН ".$ownerRecord->orgINN;        
          $page .= ", КПП ".$ownerRecord->orgKPP;        
          if(!empty($ownerAdresRecord)) $page .= ", ".$ownerAdresRecord->adress;        
