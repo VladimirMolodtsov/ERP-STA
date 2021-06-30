@@ -413,6 +413,9 @@ class MarketPrintForm extends Model
      $ownerRecord = OrgList::findOne($ownerId);
      if (empty($ownerRecord)) return "Собственник не найден";
 
+     $nds = $ownerRecord->defNDS;
+     if ($ownerRecord->isSetNDS == 0) $nds =0;
+     
      $ownerAcc=   TblOrgAccounts::findOne([
      'refOrg' => $ownerId,
      'isDefault' => 1
@@ -696,7 +699,12 @@ class MarketPrintForm extends Model
      $page.="<td colspan=6 style='text-align:right;padding:5px'><b>Итого: </b>".number_format( $sum,2,'.','&nbsp;')." руб </td>\n";     
      $page.="</tr>\n";
      $page .="<tr>\n";
-     $page.="<td colspan=6 style='text-align:right;padding:5px'><b>В том числе НДС: </b>".number_format( ($sum/1.2)*0.2,2,'.','&nbsp;')." руб </td>\n";     
+     if ($nds == 0){
+         $page.="<td colspan=6 style='text-align:right;padding:5px'><b>НДС не облагается </b> </td>\n";     
+         }
+     else {
+         $page.="<td colspan=6 style='text-align:right;padding:5px'><b>В том числе НДС: </b>".number_format( ($sum/1.2)*0.2,2,'.','&nbsp;')." руб </td>\n";     
+         }
      $page.="</tr>\n";
      
      $page .="<tr>\n";
