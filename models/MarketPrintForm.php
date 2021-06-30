@@ -703,7 +703,8 @@ class MarketPrintForm extends Model
          $page.="<td colspan=6 style='text-align:right;padding:5px'><b>НДС не облагается </b> </td>\n";     
          }
      else {
-         $page.="<td colspan=6 style='text-align:right;padding:5px'><b>В том числе НДС: </b>".number_format( ($sum/1.2)*0.2,2,'.','&nbsp;')." руб </td>\n";     
+         $nds=$nds/100;
+         $page.="<td colspan=6 style='text-align:right;padding:5px'><b>В том числе НДС: </b>".number_format( ($sum/(1+$nds))*$nds,2,'.','&nbsp;')." руб </td>\n";     
          }
      $page.="</tr>\n";
      
