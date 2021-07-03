@@ -309,7 +309,7 @@ public $defContactEmail;
       }
 
 
-      $adrRecord= AdressList::findOne(
+      /*$adrRecord= AdressList::findOne(
       [
       'isOfficial' => 1,
       'ref_org'    => $this->orgId
@@ -323,7 +323,7 @@ public $defContactEmail;
       {
         $this->adress = $adrRecord->adress;
       }
-
+*/
 
     /*  $okvedRecord= TblOrgOkved::findOne(
       [

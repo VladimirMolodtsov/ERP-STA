@@ -36,7 +36,7 @@ function setOrg(res)
     $('#orgAdress').val(orgData.orgAdress);
 
 }
-
+/** Поиск организации по почте */
 function searchByEmail()
 {
   var email = $('#email').val();
@@ -46,7 +46,6 @@ function searchByEmail()
         url: URL,
         type: 'GET',
         dataType: 'json',
-//        data: data,
         success: function(res){     
            setOrg(res); 
         },
@@ -54,10 +53,51 @@ function searchByEmail()
             alert('Error while retrieve data!');
         }
     });	
+}
+
+/** Поиск организации по id */
+function searchByOrgId(orgId)
+{
+  var URL = 'index.php?r=/sale/order/get-org&orgId='+orgId;
+  console.log(URL); 
+    $.ajax({
+        url: URL,
+        type: 'GET',
+        dataType: 'json',
+        success: function(res){     
+           setOrg(res); 
+        },
+        error: function(){
+            alert('Error while retrieve data!');
+        }
+    });	
+}
+
+/* Сохранение параметров */
+function saveData()
+{
+    var data = $('#saveDataForm').serialize();
+    $.ajax({
+        url: 'index.php?r=sale/order/save-order-detail',
+        type: 'POST',
+        dataType: 'json',
+        data: data,
+        success: function(res){     
+            console.log(res);
+            if(res.isReload==true)document.location.reload(true); 
+        },
+        error: function(){
+            alert('Error while saving data!');
+        }
+    });	
+}
+
+
+function switchValue(id, type)                  
+{
 
 
 }
-
  </script>  
 
  <?php $form = ActiveForm::begin(['id' => 'Mainform',]); ?>
@@ -124,7 +164,7 @@ function searchByEmail()
  
 
      <tr>
-         <td> Название </td>
+         <td> Юридический адрес </td>
          <td colspan='3'> <?= $form->field($model, 'orgAdress')->textInput([
         'id'=>'orgAdress',
         //'style'=>'width:100px; margin:0px; font-size:12px;padding:2px;',
@@ -223,4 +263,13 @@ echo GridView::widget(
 
    <?= $form->field($model, 'id')->hiddenInput()->label(false)?>
    <?= $form->field($model, 'orgRef')->hiddenInput()->label(false)?>  
-   <?php ActiveForm::end(); ?>
+
+<?php   
+echo $form->field($model, 'recordId' )->hiddenInput(['id' => 'recordId' ])->label(false);
+echo $form->field($model, 'dataId' )->hiddenInput(['id' => 'dataId' ])->label(false);
+echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
+echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
+echo "<input type='submit'>";
+ActiveForm::end(); 
+?>
+   
