@@ -30,7 +30,6 @@ function setOrg(res)
   var orgData = res.orgData[0];
 
   if(orgData.zakazId > 0){
-      alert(orgData.zakazId);
       document.location.href = 'index.php?r=sale/order/new-order&id='+orgData.zakazId;  
       return;
   }
@@ -44,8 +43,16 @@ function setOrg(res)
     $('#contactFIO').val(orgData.contactFIO);
     $('#orgAdress').val(orgData.orgAdress);
     
+    document.getElementById('selectGood').style.display='Block';
+
     
-    
+}
+
+function initLoad()
+{
+    alert("init");
+    var email = $('#email').val();
+    if (email != "") searchByEmail();
 }
 /** Поиск организации по почте */
 function searchByEmail()
@@ -87,6 +94,7 @@ function searchByOrgId(orgId)
 /* Сохранение параметров */
 function saveData()
 {
+   $(document.body).css({'cursor' : 'wait'});
     var data = $('#Mainform').serialize();
     $.ajax({
         url: 'index.php?r=sale/order/save-order-detail',
@@ -94,36 +102,92 @@ function saveData()
         dataType: 'json',
         data: data,
         success: function(res){     
+            $(document.body).css({'cursor' : 'default'});
             console.log(res);
-            document.location.href = 'index.php?r=sale/order/new-order&id='+res.id;  
+            if (res.isReload){
+                document.location.href = 'index.php?r=sale/order/new-order&id='+res.id;
+                }
+            if (res.isSwitch){
+            showSwitch(res);
+            }
         },
         error: function(){
+            $(document.body).css({'cursor' : 'default'});
             alert('Error while saving data!');
         }
     });	
 }
 
 
-function switchValue(id, type)                  
+function switchValue(id, type)
 {      
       $('#dataId').val(id);  
       $('#dataType').val('wareInOrder');  
       saveData();
 }
+
+function saveField(id, type)
+{
+   var idx = '#'+type+id;
+   var val = $(idx).val();
+
+      $('#dataVal').val(val);
+      $('#dataId').val(id);
+      $('#dataType').val(type);
+
+    saveData();
+}
+
+function showSwitch(res)
+{
+   var idx = res.dataType+res.dataId;
+
+    if (res.val == 0)
+        document.getElementById(idx).style.background='White';
+    else
+        document.getElementById(idx).style.background='Blue';
+
+}
+
+
+
+function finishOrder()
+{
+    var zakazId = $('#id').val();
+    if (zakazId > 0 )
+        document.location.href = 'index.php?r=sale/order/get-order&id='+zakazId;
+    else
+        alert ("Заказ должен бытьь сформирован!");
+}
+
  </script>  
 
  <?php $form = ActiveForm::begin(['id' => 'Mainform','action' => 'index.php?r=sale/order/save-order-detail']); ?>
 
-
- <?= $form->field($model, 'email')->textInput([
+ <table border='0' width='100%'><tr>
+ <td><?= $form->field($model, 'email')->textInput([
         'id'=>'email',
         //'style'=>'width:100px; margin:0px; font-size:12px;padding:2px;',
         'placeHolder' => 'Электронная почта',
         'onChange'    => 'searchByEmail()'
         ])->label('Электронная почта')
+  ?></td>
+  <td width='50px;'>
+  <?php
+  echo  \yii\helpers\Html::tag( 'div', "<span class='glyphicon glyphicon-refresh'></span>",
+                   [
+                     'class'   => 'btn btn-primary',
+                     'id'      => 'refreshInfo',
+                     'onclick' => 'searchByEmail()',
+                     'title'   => 'Загрузить информацию по электронной почте',
+                     'style'   => 'color:White;margin-top:7px; margin-left:5px; width:40px;'
+                   ]);
+
   ?>
+  </td>
+  </tr></table>
  
- <div > 
+ <div onload="initLoad();">
  <p><b>Данные заказчика</b></p>
  <table class='table table-striped'>
      <tr>
@@ -190,6 +254,12 @@ function switchValue(id, type)
  </table>
  </div>  
 <?php
+  $style='display:block';
+  if (empty($model -> orgRef)) $style='display:none';
+?>
+ <div id='selectGood' style='<?= $style ?>' >
+
+<?php
 $zakazId = $model -> id;
 echo GridView::widget(
     [
@@ -208,7 +278,7 @@ echo GridView::widget(
                 'format' => 'raw',
                 'contentOptions' => ['width' => '50px'],
                 'value' => function ($model, $key, $index, $column) use($zakazId) {    
-               $id = $model['id'].'wareInOrder'; 
+               $id = 'wareInOrder'.$model['id'];
                $action = "switchValue(".$model['id'].", 'wareInOrder');" ;                  
                
                $active = Yii::$app->db->createCommand("Select ifnull(isActive,0) FROM {{%zakazContent}}
@@ -217,7 +287,7 @@ echo GridView::widget(
                if (empty($active))  $style='background:White;';    
                               else  $style='background:Blue;';    
                
-               return \yii\helpers\Html::tag( 'div', "", 
+               return \yii\helpers\Html::tag( 'div', "",
                    [
                      'class'   => 'btn btn-primary btn-small',
                      'id'      => $id,
@@ -239,12 +309,19 @@ echo GridView::widget(
                 'label'     => 'Количество',
                 'format' => 'raw',
                 'contentOptions' => ['style' => 'padding:0px;width:100px;'],
-                'value' => function ($model, $key, $index, $column) {
+                'value' => function ($model, $key, $index, $column)  use($zakazId) {
                     $id = "wareCount".$model['id'];
                     $action =  "saveField(".$model['id'].", 'wareCount');"; 
+
+                    $val = Yii::$app->db->createCommand("Select ifnull(count,0) FROM {{%zakazContent}}
+                    Where refZakaz = :refZakaz AND wareNameRef = :wareNameRef ",
+                    [':refZakaz' => $zakazId, ':wareNameRef' => $model['id']])->queryScalar();
+                    if (empty($val))  $val = "";
+
+
                      return Html::textInput( 
                           $id, 
-                          '',                                
+                          $val,
                               [
                               'class' => 'form-control',
                               'style' => 'width:100pxpx; font-size:11px;padding:1px;', 
@@ -275,16 +352,32 @@ echo GridView::widget(
 );
 ?>
 
+  <?php
+  if (!empty($model -> id))
+  echo  \yii\helpers\Html::tag( 'div', "Завершить и сформировать коммерческое предложение",
+                   [
+                     'class'   => 'btn btn-primary',
+                     'id'      => 'finishOrderBtn',
+                     'onclick' => 'finishOrder()',
+                     'title'   => 'Загрузить информацию по электронной почте',
+                     'style'   => 'color:White;'
+                   ]);
 
-   <?= $form->field($model, 'id')->textInput(['id' => 'id'])->label('id')?>
-   <?= $form->field($model, 'orgRef')->textInput(['id' => 'orgRef'])->label('orgRef')?>  
+  ?>
+
+
+</div >
+
+   <?= $form->field($model, 'id')->hiddenInput(['id' => 'id'])->label(false)?>
+   <?= $form->field($model, 'orgRef')->hiddenInput(['id' => 'orgRef'])->label(false)?>
 
 <?php   
-echo $form->field($model, 'recordId' )->textInput(['id' => 'recordId' ])->label(false);
-echo $form->field($model, 'dataId' )->textInput(['id' => 'dataId' ])->label(false);
-echo $form->field($model, 'dataType' )->textInput(['id' => 'dataType' ])->label(false);
-echo $form->field($model, 'dataVal' )->textInput(['id' => 'dataVal' ])->label(false);
-echo "<input type='submit'>";
+echo $form->field($model, 'recordId' )->hiddenInput(['id' => 'recordId' ])->label(false);
+echo $form->field($model, 'dataId' )->hiddenInput(['id' => 'dataId' ])->label(false);
+echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
+echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
+//echo "<input type='submit'>";
 ActiveForm::end(); 
 ?>
-   
+
+

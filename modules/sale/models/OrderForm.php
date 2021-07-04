@@ -14,8 +14,10 @@ use app\models\PhoneList;
 use app\models\EmailList;
 use app\models\ZakazList;
 use app\models\ZakazContent;
+use app\models\TblWareNames;
 use app\models\AdressList;
 
+use app\models\TblOrgAccounts;
 /**
  * OrderForm - Планирование - суммарные значения
  */
@@ -229,7 +231,186 @@ use app\models\AdressList;
       }
     return $adress;
     }    
-      
+
+ /****************************************************************************************/
+ /**
+ * Настройка css для коммерческого
+ * @param
+ * @return String код css
+ * @throws Exception none
+ */
+
+   public function  getOrderCss ()
+   {
+    $fpath=realpath(dirname(__FILE__))."/".'orderTemplate.css';
+    $html = file_get_contents ($fpath);
+    return $html;
+   }
+
+
+/****************************************************************************************/
+ /**
+ * Получить значение из конфига
+ * @param  Integer key - номер ключа
+ * @return String значение
+ * @throws Exception none
+ */
+
+   public function getCfgValue($key)
+   {
+     $record = Yii::$app->db->createCommand(
+            'SELECT keyValue from {{%config}} WHERE id =:key',
+            [
+            ':key' => intval($key),
+            ])->queryOne();
+
+    return $record['keyValue'];
+   }
+
+/****************************************************************************************/
+ /**
+ * Настройка css для коммерческого
+ * @param
+ * @return String код html
+ * @throws Exception none
+ */
+   public function prepareOrderDoc()
+   {
+
+     $page = "";
+     $zakazId = intval($this->id);
+
+
+
+     $ownerId = $this->getCfgValue(1100);
+     $ownerRecord = OrgList::findOne($ownerId);
+     if (empty($ownerRecord)) return "Собственник не найден";
+
+     $ownerAcc=   TblOrgAccounts::findOne([
+     'refOrg' => $ownerId,
+     'isDefault' => 1
+     ]);
+     if (empty($ownerAcc)) return "Реквезиты Собственника не найдены";
+
+     $zakazRecord  = ZakazList::findOne($zakazId);
+     if (empty($zakazRecord)) return "Заказ не найден";
+
+
+
+     $clientRecord = OrgList::findOne($zakazRecord->refOrg);
+     if (empty($clientRecord)) return "Клиент не найден";
+
+     $page = "<table border='0' style='width:1024px;'><tr>
+     <td width='190px' valign='top'>
+          <img src='img/logo.png' width=188 height=48>
+     </td>
+     <td valign='top'>";
+     $page .= "<b>".$ownerRecord->orgFullTitle."</b><br>";
+     $page .= "<b> телефон: ".$ownerRecord->contactPhone."</b><br>";
+     $page .= "<b> E-Mail: ".$ownerRecord->contactEmail."</b><br>";
+     $page .= "<b> ИНН: ".$ownerRecord->orgINN." КПП ".$ownerRecord->orgKPP."</b><br>&nbsp;<br>";
+     $page .= "</td>";
+     $page .= "<td valign='top'>";
+     $page .= " Банк: ".$ownerAcc->orgBank."<br>";
+     $page .= " БИК: ".$ownerAcc->orgBIK."<br>";
+     $page .= " Р/С: ".$ownerAcc->orgRS."<br>";
+     $page .= " К/C: ".$ownerAcc->orgKS."<br>";
+     $page .= "</td> \n";
+
+     $page .= "</tr><tr> \n";
+
+     $page .= "<td colspan = 3> &nbsp; </td></tr><tr> \n";
+
+     $page .= "</tr><tr> \n";
+     $page .= "<td width='190px'> </td> \n";
+
+     $ownerAcc=   TblOrgAccounts::findOne([
+     'refOrg' => $ownerId,
+     'isDefault' => 1
+     ]);
+
+
+     $page .= "<td valign='top'>";
+     if (empty($clientRecord->orgFullTitle)) $orgFullTitle = $clientRecord->title;
+                                        else $orgFullTitle = $clientRecord->orgFullTitle;
+     $page .= "<b>".$orgFullTitle."</b><br>";
+     $page .= "<b> телефон: ".$clientRecord->contactPhone."</b><br>";
+     $page .= "<b> E-Mail: ".$clientRecord->contactEmail."</b><br>";
+     $page .= "<b> ИНН: ".$clientRecord->orgINN." КПП ".$clientRecord->orgKPP."</b><br>&nbsp;<br>";
+     $page .= "</td> \n";
+     $page .= "<td valign='top'>";
+
+     $clientAcc=   TblOrgAccounts::findOne([
+     'refOrg' => $clientRecord->id,
+     'isDefault' => 1
+     ]);
+     if (empty($clientAcc))
+     $clientAcc=   TblOrgAccounts::findOne([
+     'refOrg' => $clientRecord->id,
+     ]);
+     if (!empty($clientAcc)){
+     $page .= " Банк: ".$clientAcc->orgBank."<br>";
+     $page .= " БИК: ".$clientAcc->orgBIK."<br>";
+     $page .= " Р/С: ".$clientAcc->orgRS."<br>";
+     $page .= " К/C: ".$clientAcc->orgKS."<br>";
+     $page .= "</td> \n";
+     }
+
+     $page .= "</tr><tr> \n";
+
+
+
+
+      $page .= "<td colspan=3 style='text-align:center;'>";
+      $page .= "<h4> Коммерческое предложение </h4>";
+      $page .= "</td> \n";
+
+
+      $page .= "</tr></table> \n";
+
+     $page .="<div style='padding:20px;'>\n";
+     $page .="<table border='1px' style='border-collapse: collapse; width:980px; border-width:1px; padding:5px;'>\n";
+     $page .="<tr>
+     <td style='padding:5px;'><b> № </b></td>
+     <td style='padding:5px;'>Товары (работы, услуги)</td>
+     <td style='padding:5px;'>Кол-во </td>
+     <td style='padding:5px;'>Ед.</td>
+     <td style='padding:5px;'>Цена</td>
+     <td style='padding:5px;'>Сумма</td>
+     </tr>\n";
+
+    $detailList = Yii::$app->db->createCommand(
+            'SELECT {{%zakazContent}}.id, {{%zakazContent}}.isActive, {{%zakaz}}.refOrg as orgId, {{%zakaz}}.id AS zakazId,
+            initialZakaz, good, spec, ed, value, count, dopRequest, dostavka
+            FROM   {{%zakazContent}}, {{%zakaz}}  where {{%zakazContent}}.refZakaz = {{%zakaz}}.id
+            AND {{%zakazContent}}.isActive = 1 AND  refZakaz=:refZakaz' ,
+        [':refZakaz' => $zakazRecord->id])->queryAll();
+
+    $sum=0;
+    for ($i=0; $i<count($detailList);$i++ )
+    {
+        //if ($detailList[$i]['isActive'] == 0) {continue;}
+        $page .="<tr>\n";
+        $page.="<td style=padding:5px;'>".($i+1)."</td>\n";
+        $page.="<td style=padding:5px;'>".$detailList[$i]['good']."</td>\n";
+        $page.="<td style=padding:5px;'>".$detailList[$i]['count']."</td>\n";
+        $page.="<td style=padding:5px;'>".$detailList[$i]['ed']."</td>\n";
+        $page.="<td style=padding:5px;text-align:right;'>".number_format($detailList[$i]['value'],2,'.','&nbsp;')."</td>\n";
+        $page.="<td style=padding:5px;text-align:right;'>".number_format(($detailList[$i]['count']*$detailList[$i]['value']),2,'.','&nbsp;')."</td>\n";
+        $page.="</tr>\n";
+        $sum+=$detailList[$i]['count']*$detailList[$i]['value'];
+    }
+    $p=$i;
+
+
+     $page .="<tr>\n";
+     $page.="<td colspan=6 style='text-align:right;padding:5px'>Итого: ".number_format( $sum,2,'.','&nbsp;')." руб </td>\n";
+     $page.="</tr>\n";
+     $page.=" </table> \n";
+     $page.=" </div> \n";
+     return $page;
+   }
+
  /****************************************************************************************/
  /**
  * Сохранение параметров заказа
@@ -245,6 +426,8 @@ use app\models\AdressList;
                'dataType' => $this->dataType, 
                'dataVal'  => $this->dataVal, 
                'dataId'   => $this->dataId,
+               'isReload'   => false,
+               'isSwitch'   => false,
                'val' => '',            
             ];   
       
@@ -260,6 +443,7 @@ use app\models\AdressList;
         $record->isByClient=1;
         $record->clientEmail = $this->email;        
         $record->save();
+        $ret['isReload'] = true;
         $this->id = $record->id;
       }else{
          $record=ZakazList::findOne( intval($this->id));
@@ -273,10 +457,16 @@ use app\models\AdressList;
             'wareNameRef' => intval($this->dataId)
             ]);
             if(empty($contentRecord)){
+            $wareRecord = TblWareNames::findOne($this->dataId);
+            if (empty($wareRecord)) return $ret;
+
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
                 $contentRecord ->refZakaz = $record->id;
                 $contentRecord ->wareNameRef = intval($this->dataId);
+                $contentRecord ->initialZakaz = $wareRecord->wareTitle;
+                $contentRecord ->good = $wareRecord->wareTitle;
+                $contentRecord ->ed = $wareRecord->wareEd;
                 $contentRecord ->count = 1;
                 $contentRecord ->isActive = 1;
             }            
@@ -286,18 +476,25 @@ use app\models\AdressList;
             }
             $contentRecord ->save();
             $ret['val'] = $contentRecord ->isActive;
+            $ret['isSwitch'] = true;
         break;
-    
+
         case 'wareCount' :
             $contentRecord = ZakazContent::findOne([
             'refZakaz' => $record->id,
             'wareNameRef' => intval($this->dataId)
             ]);
             if(empty($contentRecord)){
+            $wareRecord = TblWareNames::findOne($this->dataId);
+            if (empty($wareRecord)) return $ret;
+
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
                 $contentRecord ->refZakaz = $record->id;
                 $contentRecord ->wareNameRef = intval($this->dataId);
+                $contentRecord ->initialZakaz = $wareRecord->wareTitle;
+                $contentRecord ->good = $wareRecord->wareTitle;
+                $contentRecord ->ed = $wareRecord->wareEd;
                 $contentRecord ->count = (float)str_replace(',', '.',$this->dataVal); 
                 $contentRecord ->isActive = 1;
             }            

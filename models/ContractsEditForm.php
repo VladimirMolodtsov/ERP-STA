@@ -328,6 +328,7 @@ class ContractsEditForm extends Model
     $html = file_get_contents ($fpath);
     return $html;
    }
+
    public function prepareContractDoc($id)
    {
     $fpath=realpath(dirname(__FILE__))."/".'contractTemplate.html';
