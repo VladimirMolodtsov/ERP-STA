@@ -65,7 +65,36 @@ use app\models\AdressList;
     }
 
 
-    
+/****************************************************************************************/
+ /**
+ * Загружаем сохраненные
+ * @param  
+ * @return true/false загружен/не загружен
+ * @throws Exception none
+ */   
+   public function loadOrder()    
+   {
+     /* пробуем загрузить по почте предыдущий заказ */ 
+     if(empty($this->id)) return false;
+     $record= ZakazList::findOne($this->id);
+     if(empty($record)) return false;
+       
+     $this->orgRef = $record->refOrg;
+     $this->email   = $record->clientEmail;
+     
+     $res = $this->getOrgById($record->clientEmail, $record->refOrg);
+     if ($res['N'] > 0)
+     {
+         $orgData = $res['orgData'][0];
+         $this->orgTitle   = $orgData['orgTitle'];
+         $this->orgInn     = $orgData['orgInn'];
+         $this->orgKpp     = $orgData['orgKpp'];
+         $this->orgAdress  = $orgData['orgAdress'];
+         $this->orgPhone   = $orgData['orgPhone'];
+         $this->contactFIO = $orgData['contactFIO'];
+     }
+    return true;        
+   }
  /****************************************************************************************/
  /**
  * Поиск организации по email
@@ -91,6 +120,13 @@ use app\models\AdressList;
     $res['N']=$N;
     for ($i=0; $i<$N; $i++){  
     
+    $zakazId=0;
+    $zakazRec= ZakazList::findOne([
+    'refOrg' => $list[$i]['orgRef'],
+    'isByClient' => 1
+    ]);
+    if(!empty($zakazRec)) $zakazId = $zakazRec->id;
+    
     if (empty($list[$i]['emailContactFIO'])) $contactFIO = $list[$i]['contactFIO'];
                                         else $contactFIO = $list[$i]['emailContactFIO'];
     $adress = $this->getAdress($list[$i]['orgRef']);                                        
@@ -102,8 +138,10 @@ use app\models\AdressList;
                 'orgPhone' =>$list[$i]['orgPhone'],
                 'contactFIO' =>$contactFIO,
                 'orgRef' =>$list[$i]['orgRef'],
+                'zakazId' => $zakazId,
                 ];
     }     
+        
     $res['res'] = true;    
     return $res;
     }    
@@ -134,13 +172,21 @@ use app\models\AdressList;
         and {{%emaillist}}.email = :email and {{%emaillist}}.ref_org = :orgRef", 
         [':email' => $email, ':orgRef' => intval($orgId)])->queryAll();             
     
-    $N = count($list);
+    $N = count($list);    
     $res['N']=$N;
 
+    if ($N == 0) return $res;
     if (empty($list[0]['emailContactFIO'])) $contactFIO = $list[0]['contactFIO'];
                                        else $contactFIO = $list[0]['emailContactFIO'];
     $adress = $this->getAdress($list[0]['orgRef']);
-    
+    $zakazId=0;
+    $zakazRec= ZakazList::findOne([
+    'refOrg' => $list[0]['orgRef'],
+    'isByClient' => 1
+    ]);
+    if(!empty($zakazRec)) $zakazId = $zakazRec->id;
+
+        
     $res['orgData'][0] =[
                 'orgTitle' =>$list[0]['orgTitle'],
                 'orgInn' =>$list[0]['orgINN'],
@@ -149,6 +195,7 @@ use app\models\AdressList;
                 'orgPhone' =>$list[0]['orgPhone'],
                 'contactFIO' =>$contactFIO,
                 'orgRef' =>$list[0]['orgRef'],
+                'zakazId' => $zakazId,                
                 ];
          
     $res['res'] = true;    
@@ -210,8 +257,10 @@ use app\models\AdressList;
         $record->isActive = 1;
         $record->ref_user = 0;
         $record->formDate = date("Y-m-d");
-        $record->isByClient=0;
+        $record->isByClient=1;
+        $record->clientEmail = $this->email;        
         $record->save();
+        $this->id = $record->id;
       }else{
          $record=ZakazList::findOne( intval($this->id));
       }
@@ -221,13 +270,13 @@ use app\models\AdressList;
         case 'wareInOrder' :
             $contentRecord = ZakazContent::findOne([
             'refZakaz' => $record->id,
-            'wareNameRef' => intval(this->dataId)
+            'wareNameRef' => intval($this->dataId)
             ]);
             if(empty($contentRecord)){
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
                 $contentRecord ->refZakaz = $record->id;
-                $contentRecord ->wareNameRef = intval(this->dataId);
+                $contentRecord ->wareNameRef = intval($this->dataId);
                 $contentRecord ->count = 1;
                 $contentRecord ->isActive = 1;
             }            
@@ -242,13 +291,13 @@ use app\models\AdressList;
         case 'wareCount' :
             $contentRecord = ZakazContent::findOne([
             'refZakaz' => $record->id,
-            'wareNameRef' => intval(this->dataId)
+            'wareNameRef' => intval($this->dataId)
             ]);
             if(empty($contentRecord)){
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
                 $contentRecord ->refZakaz = $record->id;
-                $contentRecord ->wareNameRef = intval(this->dataId);
+                $contentRecord ->wareNameRef = intval($this->dataId);
                 $contentRecord ->count = (float)str_replace(',', '.',$this->dataVal); 
                 $contentRecord ->isActive = 1;
             }            
@@ -261,8 +310,9 @@ use app\models\AdressList;
         break;
     
     }
-
-    
+   
+    $ret['id'] = $this->id;
+    $ret['res'] = true;
     return $ret;
    }   
    

@@ -10,6 +10,8 @@ use yii\bootstrap\Alert;
 
 $this->title = 'Форма заказа';
 
+$model->loadOrder();
+
 ?>
 <style>
 .btn-small{
@@ -26,7 +28,14 @@ function setOrg(res)
   console.log(res);
   if(res.N == 0) return;
   var orgData = res.orgData[0];
+
+  if(orgData.zakazId > 0){
+      alert(orgData.zakazId);
+      document.location.href = 'index.php?r=sale/order/new-order&id='+orgData.zakazId;  
+      return;
+  }
     console.log(orgData);
+    //alert (orgData.orgRef);
     $('#orgRef').val(orgData.orgRef);
     $('#orgTitle').val(orgData.orgTitle);
     $('#orgInn').val(orgData.orgInn);
@@ -34,7 +43,9 @@ function setOrg(res)
     $('#orgPhone').val(orgData.orgPhone);
     $('#contactFIO').val(orgData.contactFIO);
     $('#orgAdress').val(orgData.orgAdress);
-
+    
+    
+    
 }
 /** Поиск организации по почте */
 function searchByEmail()
@@ -76,7 +87,7 @@ function searchByOrgId(orgId)
 /* Сохранение параметров */
 function saveData()
 {
-    var data = $('#saveDataForm').serialize();
+    var data = $('#Mainform').serialize();
     $.ajax({
         url: 'index.php?r=sale/order/save-order-detail',
         type: 'POST',
@@ -84,7 +95,7 @@ function saveData()
         data: data,
         success: function(res){     
             console.log(res);
-            if(res.isReload==true)document.location.reload(true); 
+            document.location.href = 'index.php?r=sale/order/new-order&id='+res.id;  
         },
         error: function(){
             alert('Error while saving data!');
@@ -94,13 +105,14 @@ function saveData()
 
 
 function switchValue(id, type)                  
-{
-
-
+{      
+      $('#dataId').val(id);  
+      $('#dataType').val('wareInOrder');  
+      saveData();
 }
  </script>  
 
- <?php $form = ActiveForm::begin(['id' => 'Mainform',]); ?>
+ <?php $form = ActiveForm::begin(['id' => 'Mainform','action' => 'index.php?r=sale/order/save-order-detail']); ?>
 
 
  <?= $form->field($model, 'email')->textInput([
@@ -178,6 +190,7 @@ function switchValue(id, type)
  </table>
  </div>  
 <?php
+$zakazId = $model -> id;
 echo GridView::widget(
     [
         'dataProvider' => $provider,
@@ -187,21 +200,23 @@ echo GridView::widget(
             'class' => 'table table-striped table-bordered table-condensed'
         ],
         
-        
-               
                             
         'columns' => [                        
-        
            [
                 'attribute' => 'id',
                 'label' => '',
                 'format' => 'raw',
                 'contentOptions' => ['width' => '50px'],
-                'value' => function ($model, $key, $index, $column) {    
-                
+                'value' => function ($model, $key, $index, $column) use($zakazId) {    
+               $id = $model['id'].'wareInOrder'; 
                $action = "switchValue(".$model['id'].", 'wareInOrder');" ;                  
-               $style='background:White;';    
-               $id = $model['id'].'wareInOrder';
+               
+               $active = Yii::$app->db->createCommand("Select ifnull(isActive,0) FROM {{%zakazContent}}
+               Where refZakaz = :refZakaz AND wareNameRef = :wareNameRef ", 
+               [':refZakaz' => $zakazId, ':wareNameRef' => $model['id']])->queryScalar();  
+               if (empty($active))  $style='background:White;';    
+                              else  $style='background:Blue;';    
+               
                return \yii\helpers\Html::tag( 'div', "", 
                    [
                      'class'   => 'btn btn-primary btn-small',
@@ -261,14 +276,14 @@ echo GridView::widget(
 ?>
 
 
-   <?= $form->field($model, 'id')->hiddenInput()->label(false)?>
-   <?= $form->field($model, 'orgRef')->hiddenInput()->label(false)?>  
+   <?= $form->field($model, 'id')->textInput(['id' => 'id'])->label('id')?>
+   <?= $form->field($model, 'orgRef')->textInput(['id' => 'orgRef'])->label('orgRef')?>  
 
 <?php   
-echo $form->field($model, 'recordId' )->hiddenInput(['id' => 'recordId' ])->label(false);
-echo $form->field($model, 'dataId' )->hiddenInput(['id' => 'dataId' ])->label(false);
-echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
-echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
+echo $form->field($model, 'recordId' )->textInput(['id' => 'recordId' ])->label(false);
+echo $form->field($model, 'dataId' )->textInput(['id' => 'dataId' ])->label(false);
+echo $form->field($model, 'dataType' )->textInput(['id' => 'dataType' ])->label(false);
+echo $form->field($model, 'dataVal' )->textInput(['id' => 'dataVal' ])->label(false);
 echo "<input type='submit'>";
 ActiveForm::end(); 
 ?>

@@ -45,6 +45,9 @@ class OrderController extends Controller
     public function actionNewOrder()
     {
          $model = new OrderForm();
+         $request = Yii::$app->request;    
+         $model->id = $request->get('id',0);
+         
          $provider = $model->getWarePriceProvider(Yii::$app->request->get());         
          return $this->render('new-order', ['model' => $model, 'provider' => $provider]);
     }
@@ -88,6 +91,7 @@ class OrderController extends Controller
      */    
     public function actionSaveOrderDetail()
     {
+        $model = new OrderForm();
 //         if(Yii::$app->request->isAjax)
         {
             if ($model->load(Yii::$app->request->post()) && $model->validate()) 
