@@ -1385,9 +1385,9 @@ function saveSelfField( type)
 <?php 
 $form = ActiveForm::begin(['id' => 'saveDataForm', 'action' => 'index.php?r=/site/save-self-detail']);
 echo $form->field($model, 'dataRequestId' )->hiddenInput(['id' => 'dataRequestId' ])->label(false);
-echo $form->field($model, 'dataVal' )->textInput(['id' => 'dataVal' ])->label(false);
+echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
 echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
-echo "<div align='center'><input type='submit' ></div>";
+//echo "<div align='center'><input type='submit' ></div>";
 ActiveForm::end(); 
 
 /*echo "<pre>";
