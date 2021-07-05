@@ -29,6 +29,8 @@ use app\models\TblOrgOkved;
 use app\models\TblOrgDblGis;
 use app\models\TblOrgDostavka;
 
+use app\models\ConfigTable;
+
 class OrgDetail extends Model 
 {
 
@@ -403,9 +405,8 @@ public $defContactEmail;
       
   }
 
+
 /*************************************************************/
-
-
    public function saveData()        
    {
       $this->orgId = intval($this->orgId);
@@ -1946,6 +1947,78 @@ public function orgDelFromGroup($orgId)
      return $res;
    }   
 /***************/
+
+   public function  saveSelfDetail ()
+   {
+    $res = ['res' => false, 
+            'dataRequestId' => $this->dataRequestId, 
+            'dataType' => $this->dataType, 
+            'isSwitch' =>0,
+            'val' => $this->dataVal
+           ];   
+        switch ($this->dataType)
+        {            
+          case 'EMail-def':         
+              $val = $this->saveConfig (1000, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'EMail-SALE':         
+              $val = $this->saveConfig (1001, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'EMail-PURCH':         
+              $val = $this->saveConfig (1002, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'EMail-Control':         
+              $val = $this->saveConfig (1003, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'schetDuration':         
+              $val = $this->saveConfig (1200, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'schetCondition':         
+              $val = $this->saveConfig (1201, $this->dataType ,$this->dataVal);
+          break;
+          
+          case 'wareCondition':         
+              $val = $this->saveConfig (1202, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'director':         
+              $val = $this->saveConfig (1203, $this->dataType ,$this->dataVal);
+          break;
+
+          case 'buhgalter':         
+              $val = $this->saveConfig (1204, $this->dataType ,$this->dataVal);
+          break;
+                                                  
+          default:
+              return $res;     
+          break;              
+        }
+     $res['val'] = $val;              
+     $res['res'] = true;
+     return $res;
+   }   
+   public function  saveConfig ($key, $keyTitle,$keyValue)
+   {
+
+          $record = ConfigTable::findOne($key);
+              if (empty($record)) {              
+                  $record = new ConfigTable();                            
+                  if (empty($record)) return $res;              
+                  $record->id = $key;
+                  $record->keyTitle = $keyTitle;
+              }              
+              $record->keyValue = $keyValue; 
+              $record->save();              
+       return $record->keyValue;
+   }
+   
+   
+
    public function  saveDetail ()
    {
     $res = ['res' => false, 
@@ -1990,10 +2063,6 @@ public function orgDelFromGroup($orgId)
               $val =  $record->isDefault;
                 $res['isSwitch'] = 1;
           break;
-            
-            
-            
-            
             
           case 'orgBank':
               $record = TblOrgAccounts::findOne(intval($this->dataRequestId));

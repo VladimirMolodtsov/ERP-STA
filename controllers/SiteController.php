@@ -1205,11 +1205,11 @@ public function actionLoadReestrClient()
          $request = Yii::$app->request;             
          $noframe= intval($request->get('noframe', 0));
          
-         $model->loadSelfOrgData();                  
+        $model->loadSelfOrgData();                  
         if ($model->load(Yii::$app->request->post()) && $model->validate()) 
         {
            $model->saveData();                      
-           $this->redirect(['site/self-card', 'orgId' => $orgId, 'noframe' => $noframe, 'mode' => $mode]);
+           $this->redirect(['site/self-card',  'noframe' => $noframe ]);
         }
     
         $adressProvider    = $model->getAdressListProvider();
@@ -1573,7 +1573,24 @@ public function actionLoadReestrClient()
             }    
        }          
     }   
+
+     public function actionSaveSelfDetail()
+    {    
+        $request = Yii::$app->request;    
+        $model=  new OrgDetail();                
        
+        //if(Yii::$app->request->isAjax)
+        {
+            if ($model->load(Yii::$app->request->post()) && $model->validate()) 
+            {
+                $sendArray = $model->saveSelfDetail();
+                echo json_encode($sendArray);
+                return;
+            }    
+       }          
+    }   
+    
+           
     public function actionAddNewOkved()
     {
          $model = new OrgDetail();

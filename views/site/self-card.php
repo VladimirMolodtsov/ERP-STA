@@ -132,6 +132,31 @@ function chngSetNDS()
       else document.getElementById('NDS').readOnly=true;
 }
 
+
+/**********/
+function saveSelfField( type)
+{
+    idx= type;
+    
+    document.getElementById('dataType').value=type;
+    document.getElementById('dataVal').value=document.getElementById(idx).value;
+    
+    var data = $('#saveDataForm').serialize();
+    $.ajax({
+        url: 'index.php?r=/site/save-self-detail',
+        type: 'POST',
+        dataType: 'json',
+        data: data,
+        success: function(res){     
+            showSaved(res); 
+        },
+        error: function(){
+            alert('Error while saving data!');
+        }
+    });	
+}
+
+
 </script>
 
 <div class='row'>
@@ -1067,6 +1092,7 @@ function chngSetNDS()
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'EMail-def',   
          'placeholder' => 'Служебны адрес электронной почты',       
+         'onchange' => "saveSelfField('EMail-def');",
       ]);          
       ?>  </td>  
       <td>Email Продажи</td>
@@ -1079,6 +1105,7 @@ function chngSetNDS()
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'EMail-SALE',          
          'placeholder' => 'Адрес электронной почты отдела продаж',       
+         'onchange' => "saveSelfField('EMail-SALE');",
       ]);          
       ?>  </td>  
 
@@ -1092,6 +1119,7 @@ function chngSetNDS()
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'EMail-PURCH',          
          'placeholder' => 'Адрес электронной почты отдела доставок',       
+         'onchange' => "saveSelfField('EMail-PURCH');",
       ]);          
       ?>  </td>  
       
@@ -1109,7 +1137,8 @@ function chngSetNDS()
          'class' => 'form-control',
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'director',   
-         'placeholder' => 'Руководитель организации',       
+         'placeholder' => 'Руководитель организации', 
+         'onchange' => "saveSelfField('director');",      
       ]);          
       ?>  </td>  
       <td>Гл. Бухгалтер</td>
@@ -1121,7 +1150,8 @@ function chngSetNDS()
          'class' => 'form-control',
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'buhgalter',          
-         'placeholder' => 'ФИО главного бухгалтера',       
+         'placeholder' => 'ФИО главного бухгалтера',     
+         'onchange' => "saveSelfField('buhgalter');",        
       ]);          
       ?>  </td>  
       
@@ -1133,8 +1163,9 @@ function chngSetNDS()
       [
          'class' => 'form-control',
          'style' => 'font-size:11px;padding:1px;', 
-         'id' => 'EMail-PURCH',          
-         'placeholder' => 'Адрес электронной почты отдела контроля',       
+         'id' => 'EMail-Control',          
+         'placeholder' => 'Адрес электронной почты отдела контроля',   
+         'onchange' => "saveSelfField('EMail-Control');",            
       ]);          
       ?>  
       </td>        
@@ -1150,7 +1181,8 @@ function chngSetNDS()
          'class' => 'form-control',
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'schetDuration',   
-         'placeholder' => 'Счет действителен',       
+         'placeholder' => 'Счет действителен', 
+         'onchange' => "saveSelfField('schetDuration');",                  
       ]);          
       ?>  </td>  
       <td>Уловия по счету</td>
@@ -1162,7 +1194,8 @@ function chngSetNDS()
          'class' => 'form-control',
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'schetCondition',          
-         'placeholder' => 'Уловия по счету',       
+         'placeholder' => 'Уловия по счету',  
+         'onchange' => "saveSelfField('schetCondition');",                       
       ]);          
       ?>  </td>  
 
@@ -1176,6 +1209,7 @@ function chngSetNDS()
          'style' => 'font-size:11px;padding:1px;', 
          'id' => 'wareCondition',          
          'placeholder' => 'Хранение',       
+         'onchange' => "saveSelfField('wareCondition');",                       
       ]);          
       ?>  </td>  
 
@@ -1349,11 +1383,11 @@ function chngSetNDS()
 
 
 <?php 
-$form = ActiveForm::begin(['id' => 'saveDataForm', 'action' => 'index.php?r=/site/save-detail']);
+$form = ActiveForm::begin(['id' => 'saveDataForm', 'action' => 'index.php?r=/site/save-self-detail']);
 echo $form->field($model, 'dataRequestId' )->hiddenInput(['id' => 'dataRequestId' ])->label(false);
-echo $form->field($model, 'dataVal' )->hiddenInput(['id' => 'dataVal' ])->label(false);
+echo $form->field($model, 'dataVal' )->textInput(['id' => 'dataVal' ])->label(false);
 echo $form->field($model, 'dataType' )->hiddenInput(['id' => 'dataType' ])->label(false);
-//echo "<div align='center'><input type='submit' ></div>";
+echo "<div align='center'><input type='submit' ></div>";
 ActiveForm::end(); 
 
 /*echo "<pre>";
