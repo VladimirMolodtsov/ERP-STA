@@ -129,6 +129,7 @@ if (!Yii::$app->user->isGuest)
                 ['label' => 'Товары на складах','url' => ['/store/ware-sclad']],
                 ['label' => 'Товары реализации','url' => ['/store/ware-names']],
                 ['label' => 'Отвесы','url' => ['/store/otves-list']],
+                ['label' => 'Форма заказа','url' => ['/sale/order/new-order']],
             ]],   
 
             

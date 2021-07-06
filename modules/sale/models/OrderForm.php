@@ -131,13 +131,18 @@ use app\models\TblOrgAccounts;
     
     if (empty($list[$i]['emailContactFIO'])) $contactFIO = $list[$i]['contactFIO'];
                                         else $contactFIO = $list[$i]['emailContactFIO'];
-    $adress = $this->getAdress($list[$i]['orgRef']);                                        
+    $adress = $this->getAdress($list[$i]['orgRef']);
+    if (empty($list[$i]['orgPhone']))
+        $phone  = $this->getPhone($list[$i]['orgRef']);
+    else
+        $phone  = $list[$i]['orgPhone'];
+
     $res['orgData'][] =[
                 'orgTitle' =>$list[$i]['orgTitle'],
                 'orgInn' =>$list[$i]['orgINN'],
                 'orgKpp' =>$list[$i]['orgKPP'],
                 'orgAdress' =>$adress,
-                'orgPhone' =>$list[$i]['orgPhone'],
+                'orgPhone' =>$phone,
                 'contactFIO' =>$contactFIO,
                 'orgRef' =>$list[$i]['orgRef'],
                 'zakazId' => $zakazId,
@@ -181,6 +186,12 @@ use app\models\TblOrgAccounts;
     if (empty($list[0]['emailContactFIO'])) $contactFIO = $list[0]['contactFIO'];
                                        else $contactFIO = $list[0]['emailContactFIO'];
     $adress = $this->getAdress($list[0]['orgRef']);
+
+    if (empty($list[0]['orgPhone']))
+        $phone  = $this->getPhone($list[$i]['orgRef']);
+    else
+        $phone  = $list[0]['orgPhone'];
+
     $zakazId=0;
     $zakazRec= ZakazList::findOne([
     'refOrg' => $list[0]['orgRef'],
@@ -194,7 +205,7 @@ use app\models\TblOrgAccounts;
                 'orgInn' =>$list[0]['orgINN'],
                 'orgKpp' =>$list[0]['orgKPP'],
                 'orgAdress' =>$adress,
-                'orgPhone' =>$list[0]['orgPhone'],
+                'orgPhone' =>$phone,
                 'contactFIO' =>$contactFIO,
                 'orgRef' =>$list[0]['orgRef'],
                 'zakazId' => $zakazId,                
@@ -208,7 +219,7 @@ use app\models\TblOrgAccounts;
  /**
  * Поиск адреса организации по id организации
  * @param  $orgId - Integer идентифактор организации в базе 
- * @return массив с параметрами организации
+ * @return String адрес
  * @throws Exception none
  */  
  
@@ -232,6 +243,34 @@ use app\models\TblOrgAccounts;
     return $adress;
     }    
 
+ /****************************************************************************************/
+ /**
+ * Поиск телефона организации по id организации
+ * @param  $orgId - Integer идентифактор организации в базе
+ * @return String телефон
+ * @throws Exception none
+ */
+
+   public function getPhone($orgId)
+   {
+     $phone = "";
+     $phoneRecord= PhoneList::findOne(
+      [
+      'isDefault' => 1,
+      'ref_org'    => $orgId
+      ]);
+      if (empty($phoneRecord))
+      $phoneRecord= PhoneList::find()
+        ->where (['ref_org'    => $orgId])
+        ->andWhere (["!=","ifnull(phone,'')",""])
+        ->andWhere (["!=","ifnull(status,'')",2])
+        ->one();
+      if (!empty($phoneRecord))
+      {
+        $phone = $phoneRecord->phone;
+      }
+    return $phone;
+  }
  /****************************************************************************************/
  /**
  * Настройка css для коммерческого
@@ -294,7 +333,8 @@ use app\models\TblOrgAccounts;
 
      $zakazRecord  = ZakazList::findOne($zakazId);
      if (empty($zakazRecord)) return "Заказ не найден";
-
+     $zakazRecord -> isByClient = 0;
+     $zakazRecord -> save();
 
 
      $clientRecord = OrgList::findOne($zakazRecord->refOrg);
@@ -334,8 +374,17 @@ use app\models\TblOrgAccounts;
      if (empty($clientRecord->orgFullTitle)) $orgFullTitle = $clientRecord->title;
                                         else $orgFullTitle = $clientRecord->orgFullTitle;
      $page .= "<b>".$orgFullTitle."</b><br>";
-     $page .= "<b> телефон: ".$clientRecord->contactPhone."</b><br>";
-     $page .= "<b> E-Mail: ".$clientRecord->contactEmail."</b><br>";
+
+   if (empty($clientRecord->contactPhone))
+        $phone  = $this->getPhone($list[$i]['orgRef']);
+    else
+        $phone  = $clientRecord->contactPhone;
+
+     $page .= "<b> телефон: ".$phone."</b><br>";
+     if (empty ($zakazRecord->clientEmail) )  $email = $clientRecord->contactEmail;
+                                        else  $email = $zakazRecord->clientEmail;
+
+     $page .= "<b> E-Mail: ".$email."</b><br>";
      $page .= "<b> ИНН: ".$clientRecord->orgINN." КПП ".$clientRecord->orgKPP."</b><br>&nbsp;<br>";
      $page .= "</td> \n";
      $page .= "<td valign='top'>";
@@ -456,9 +505,10 @@ use app\models\TblOrgAccounts;
             'refZakaz' => $record->id,
             'wareNameRef' => intval($this->dataId)
             ]);
-            if(empty($contentRecord)){
             $wareRecord = TblWareNames::findOne($this->dataId);
             if (empty($wareRecord)) return $ret;
+
+            if(empty($contentRecord)){
 
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
@@ -466,13 +516,16 @@ use app\models\TblOrgAccounts;
                 $contentRecord ->wareNameRef = intval($this->dataId);
                 $contentRecord ->initialZakaz = $wareRecord->wareTitle;
                 $contentRecord ->good = $wareRecord->wareTitle;
+                $contentRecord ->value = $wareRecord->v1;
                 $contentRecord ->ed = $wareRecord->wareEd;
-                $contentRecord ->count = 1;
+                if (empty($contentRecord ->count))$contentRecord ->count = 1;
                 $contentRecord ->isActive = 1;
             }            
             else {
                 if ($contentRecord ->isActive == 1) $contentRecord ->isActive = 0;
                                                else $contentRecord ->isActive = 1;            
+                $contentRecord ->value = $wareRecord->v1;
+
             }
             $contentRecord ->save();
             $ret['val'] = $contentRecord ->isActive;
@@ -484,9 +537,10 @@ use app\models\TblOrgAccounts;
             'refZakaz' => $record->id,
             'wareNameRef' => intval($this->dataId)
             ]);
-            if(empty($contentRecord)){
             $wareRecord = TblWareNames::findOne($this->dataId);
             if (empty($wareRecord)) return $ret;
+
+            if(empty($contentRecord)){
 
                 $contentRecord = new ZakazContent();
                 if (empty($contentRecord )) return $ret;
@@ -495,12 +549,14 @@ use app\models\TblOrgAccounts;
                 $contentRecord ->initialZakaz = $wareRecord->wareTitle;
                 $contentRecord ->good = $wareRecord->wareTitle;
                 $contentRecord ->ed = $wareRecord->wareEd;
+                $contentRecord ->value = $wareRecord->v1;
                 $contentRecord ->count = (float)str_replace(',', '.',$this->dataVal); 
                 $contentRecord ->isActive = 1;
             }            
             else {
                 $contentRecord ->count = (float)str_replace(',', '.',$this->dataVal); 
                 $contentRecord ->isActive = 1;
+                $contentRecord ->value = $wareRecord->v1;
             }
             $contentRecord ->save();
             $ret['val'] = $contentRecord ->count;
