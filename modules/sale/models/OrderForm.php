@@ -44,6 +44,26 @@ use app\models\TblOrgAccounts;
     
     /**** Service *****/
     public $debug;
+    public $errMsg;
+    
+    /**** Mail *****/
+    //CD4zcQYH
+    /*
+    Имя пользователя
+        aurora@erp-system.ru
+    Пароль
+        CD4zcQYH
+    Сервер POP3/IMAP
+        mail.erp-system.ru
+    Сервер SMTP
+        smtp.erp-system.ru
+    */
+    public $from ="aurora@erp-system.ru";
+    public $subject="Order";
+    public $body="Order";
+    public $html="";
+    public $attachDoc="";
+    
     
        /*Ajax save*/
     public $recordId;
@@ -340,10 +360,10 @@ use app\models\TblOrgAccounts;
      $clientRecord = OrgList::findOne($zakazRecord->refOrg);
      if (empty($clientRecord)) return "Клиент не найден";
 
-     $page = "<table border='0' style='width:1024px;'><tr>
-     <td width='190px' valign='top'>
-          <img src='img/logo.png' width=188 height=48>
-     </td>
+     $page = "<table border='0' style='width:100%;'><tr>
+     <td width='190px' valign='top'>";
+     //$page .="<img src='img/logo.png' width=188 height=48>";
+     $page .="</td>
      <td valign='top'>";
      $page .= "<b>".$ownerRecord->orgFullTitle."</b><br>";
      $page .= "<b> телефон: ".$ownerRecord->contactPhone."</b><br>";
@@ -418,7 +438,7 @@ use app\models\TblOrgAccounts;
       $page .= "</tr></table> \n";
 
      $page .="<div style='padding:20px;'>\n";
-     $page .="<table border='1px' style='border-collapse: collapse; width:980px; border-width:1px; padding:5px;'>\n";
+     $page .="<table border='1px' style='border-collapse: collapse; width:100%; border-width:1px; padding:5px;'>\n";
      $page .="<tr>
      <td style='padding:5px;'><b> № </b></td>
      <td style='padding:5px;'>Товары (работы, услуги)</td>
@@ -655,7 +675,77 @@ use app\models\ZakazContent;   */
     
  }
 
-  
+
+    public function sendMail()
+    {
+
+    $curUser=Yii::$app->user->identity; 
+    /*Crytical*/
+    if (empty($this->email  )){  $this->errMsg = "Empty mail adress";    return false;}
+    if (empty($this->subject)){  $this->errMsg = "Empty subject";    return false;}
+    if (empty($this->body))   {  $this->errMsg = "Empty Body";    return false;}
+    
+    /*Допустимо*/
+    if (empty($this->from  )) { 
+        if (empty ($curUser->email)) $this->from = $this->getCfgValue(1000);
+                                else $this->from = $curUser->email;
+                              }
+
+    /* Внутренняя кодировка приложения у нас utf-8, посколько часть почтовых программ 
+    ее не воспринимают адекватно, то переведем в Win-1251  */    
+
+    $subject  = $this->subject;
+    $textBody = $this->body;    
+    
+/*    echo $subject;    echo $textBody;*/
+    
+    $message = Yii::$app->mailer->compose()
+        ->setFrom($this->from)
+        ->setTo($this->email)
+        ->setSubject($subject)
+        ->setTextBody($textBody)
+        ->setHtmlBody($this->html);
+     
+    $uploadPath=(realpath(dirname(__FILE__)))."/../uploads";    
+        
+    $message->attach($this->attachDoc);
+    
+    
+    $message->send();
+    
+    $this->registerMail();
+    
+    return true;
+    
+    
+   } 
+
+    public function registerMail ()
+    {
+         
+       if (!empty($this->orgRef))
+        {
+          $record = OrgList::findOne($this->orgId);
+          if(empty($record)) return false;
+          $record->contactEmail = $this->email;
+          $record->save();
+            
+          $curUser=Yii::$app->user->identity;
+          $contact = new ContactList();
+          $contact->ref_org = $this->orgId;
+          $contact->ref_user = $curUser->id;
+          $contact->contactDate = date("Y.m.d h:i:s");                    
+          $contact->contactFIO = $this->subject;
+          $contact->contactEmail= $this->email;
+          $contact->note = $this->body;
+          $contact->save();
+         
+          return true; 
+        }
+
+         return false;
+    }
+      
   
   /************End of model*******************/ 
  }

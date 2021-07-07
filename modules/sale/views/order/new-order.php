@@ -153,9 +153,10 @@ function showSwitch(res)
 
 function finishOrder()
 {
+    var email = $('#email').val();
     var zakazId = $('#id').val();
     if (zakazId > 0 )
-        document.location.href = 'index.php?r=sale/order/get-order&id='+zakazId;
+        document.location.href = 'index.php?r=sale/order/get-order&id='+zakazId+'&email='+email;
     else
         alert ("Заказ должен бытьь сформирован!");
 }

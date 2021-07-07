@@ -122,12 +122,44 @@ class OrderController extends Controller
         $model = new OrderForm();
         $request = Yii::$app->request;
         $model->id = $request->get('id', 0);
+        $model->email = $request->get('email','');
+        
+        $css= $model->getOrderCss();
+        $html = $model->prepareOrderDoc();
+
+
+        $uploadPath=(realpath(dirname(__FILE__)))."/../uploads/";
+        $fname = 'order_'.\Yii::$app->security->generateRandomString(5).".doc";
+
+        $mask = realpath(dirname(__FILE__))."/../uploads/order_"."*.doc";
+        array_map("unlink", glob($mask));
+
+        $filePath = $uploadPath.$fname;
+        ExportToWord::htmlToDoc($html, $css, $filePath, 'UTF-8', 0);
+
+        
+        //$model->subject =iconv("UTF-8", "Windows-1251","Коммерческое предложение");
+        //$model->body =iconv("UTF-8", "Windows-1251","Заказанное Вами коммерческое предложение прикреплено к письму.");
+
+        $model->subject ="Коммерческое предложение";
+        $model->body ="Заказанное Вами коммерческое предложение прикреплено к письму.";
+                
+        $model->html = $html;
+        $model->attachDoc = $filePath;
+        $model->sendMail();
+        
+        return $this->render('get-order', ['model' => $model, 'html' => $html, ]);         
+    }
+
+   public function actionDownloadOrder()
+    {
+        $model = new OrderForm();
+        $request = Yii::$app->request;
+        $model->id = $request->get('id', 0);
 
         $css= $model->getOrderCss();
         $html = $model->prepareOrderDoc();
 
-        echo $html;
-        return;
 
         $uploadPath=(realpath(dirname(__FILE__)))."/../uploads/";
         $fname = 'order_'.\Yii::$app->security->generateRandomString();
@@ -143,7 +175,7 @@ class OrderController extends Controller
           return;
     }
 
-
+    
 
 /*******************************************/
 /********* Service  ************************/
