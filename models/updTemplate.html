@@ -1,0 +1,144 @@
+<html>
+    <body>
+<style>
+.sign {
+width: 150px;
+height:50px;
+}
+
+.razdel{
+ padding-left:30px;
+}
+
+.num {
+margin-left:-30px;
+}
+
+p {
+ text-align:justify;
+}
+
+</style>
+
+
+<table border='0' width='100%'>
+<tr>
+    <td valign='top' width='200px'>
+    <div style='font-size:9pt;'>
+        Универсальный передаточный документ
+    </div>
+
+    <div  style='font-size:8pt;'>
+        Статус: <div style='display:inline; border: solid 2px Black;'> 1 </div>
+    </div>
+
+    <div  style='font-size:6pt;'>
+        1 – счет-фактура и передаточный документ (акт)<br>
+        2 – передаточный документ (акт)
+    </div>
+
+    </td>
+    <td>
+        <table border='0' width='100%'>
+        <tr>
+            <td> Счет-фактура № </td>
+            <td> [[docNum]] </td>
+            <td> от </td>
+            <td> [[docDate]] </td>
+            <td> (1)</td>
+            <td rowspan='2' align='right'>
+                <div  style='font-size:6pt;'>
+                Приложение № 1 к постановлению Правительства Российской Федерации от 26 декабря 2011 г. № 1137<br>
+                (в редакции постановления Правительства Российской Федерации от 19 августа 2017 г. № 981)
+                </div>
+           </td>
+        </tr>
+
+        <tr>
+            <td> Исправление № </td>
+            <td> [[ispNum]] </td>
+            <td> от </td>
+            <td> [[ispDate]] </td>
+            <td> (1а)</td>
+        </tr>
+        </table>
+
+        <table border='0' width='100%'>
+        <tr>
+            <td> Продавец: </td>
+            <td> [[selName]] </td>
+            <td> (2)</td>
+        </tr>
+
+        <tr>
+            <td> Адрес: </td>
+            <td> [[selAdress]] </td>
+            <td> (2а)</td>
+        </tr>
+
+        <tr>
+            <td> ИНН/КПП продавца: </td>
+            <td> [[selINN]]/[[selKPP]] </td>
+            <td> (2б)</td>
+        </tr>
+
+
+        <tr>
+            <td> Грузоотправитель и его адрес: </td>
+            <td> [[selName]],[[selAdress]] </td>
+            <td> (3)</td>
+        </tr>
+
+        <tr>
+            <td> Грузополучатель и его адрес: </td>
+            <td> [[clientName]],[[clientAdress]] </td>
+            <td> (4)</td>
+        </tr>
+
+        <tr>
+            <td> К платежно-расчетному документу №: </td>
+            <td> [[platNum]] от [[platDate]] </td>
+            <td> (5)</td>
+        </tr>
+
+        <tr>
+            <td> Покупатель: </td>
+            <td> [[clientName]] </td>
+            <td> (6)</td>
+        </tr>
+
+        <tr>
+            <td> Адрес: </td>
+            <td> [[clientAdress]] </td>
+            <td> (6а)</td>
+        </tr>
+
+        <tr>
+            <td> ИНН/КПП покупателя: </td>
+            <td> [[clientINN]]/[[clientKPP]] </td>
+            <td> (6б)</td>
+        </tr>
+
+        <tr>
+            <td> Валюта: наименование, код: </td>
+            <td> Российский рубль                                  , 643 </td>
+            <td> (7)</td>
+        </tr>
+
+        <tr>
+            <td> Идентификатор государственного контракта, договора (соглашения) (при наличии):
+            <td>  -- </td>
+            <td> (8)</td>
+        </tr>
+
+
+        </table>
+
+
+    </td>
+</tr>
+</table>
+
+
+</body>
+</html>
