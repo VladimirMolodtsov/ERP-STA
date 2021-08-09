@@ -63,6 +63,7 @@ use app\models\TblOrgAccounts;
     public $body="Order";
     public $html="";
     public $attachDoc="";
+    public $orderSum;
     
     
        /*Ajax save*/
@@ -207,10 +208,8 @@ use app\models\TblOrgAccounts;
                                        else $contactFIO = $list[0]['emailContactFIO'];
     $adress = $this->getAdress($list[0]['orgRef']);
 
-    if (empty($list[0]['orgPhone']))
-        $phone  = $this->getPhone($list[$i]['orgRef']);
-    else
-        $phone  = $list[0]['orgPhone'];
+
+        $phone  = $this->getPhone($list[0]['orgRef']);
 
     $zakazId=0;
     $zakazRec= ZakazList::findOne([
@@ -283,13 +282,43 @@ use app\models\TblOrgAccounts;
       $phoneRecord= PhoneList::find()
         ->where (['ref_org'    => $orgId])
         ->andWhere (["!=","ifnull(phone,'')",""])
-        ->andWhere (["!=","ifnull(status,'')",2])
+        ->andWhere (["!=","status",2])
         ->one();
       if (!empty($phoneRecord))
       {
         $phone = $phoneRecord->phone;
       }
     return $phone;
+
+  }
+
+/****************************************************************************************/
+ /**
+ * Поиск Email организации по id организации
+ * @param  $orgId - Integer идентифактор организации в базе
+ * @return String телефон
+ * @throws Exception none
+ */
+
+   public function getEmail($orgId)
+   {
+     $email = "";
+     $emailRecord= EmailList::findOne(
+      [
+      'isDefault' => 1,
+      'ref_org'    => $orgId
+      ]);
+      if (empty($emailRecord))
+      $emailRecord= EmailList::find()
+        ->where (['ref_org'    => $orgId])
+        ->andWhere (["!=","ifnull(email,'')",""])
+        ->andWhere (["!=","ifnull(status,'')",2])
+        ->one();
+      if (!empty($emailRecord))
+      {
+        $email = $emailRecord->email;
+      }
+    return $email;
   }
  /****************************************************************************************/
  /**
@@ -366,8 +395,8 @@ use app\models\TblOrgAccounts;
      $page .="</td>
      <td valign='top'>";
      $page .= "<b>".$ownerRecord->orgFullTitle."</b><br>";
-     $page .= "<b> телефон: ".$ownerRecord->contactPhone."</b><br>";
-     $page .= "<b> E-Mail: ".$ownerRecord->contactEmail."</b><br>";
+     $page .= "<b> телефон: ".$this->getPhone($ownerId)."</b><br>";
+     $page .= "<b> E-Mail: ".$this->getEmail($ownerId)."</b><br>";
      $page .= "<b> ИНН: ".$ownerRecord->orgINN." КПП ".$ownerRecord->orgKPP."</b><br>&nbsp;<br>";
      $page .= "</td>";
      $page .= "<td valign='top'>";
@@ -389,16 +418,15 @@ use app\models\TblOrgAccounts;
      'isDefault' => 1
      ]);
 
+     $this->orgTitle= $clientRecord->title;
 
      $page .= "<td valign='top'>";
      if (empty($clientRecord->orgFullTitle)) $orgFullTitle = $clientRecord->title;
                                         else $orgFullTitle = $clientRecord->orgFullTitle;
      $page .= "<b>".$orgFullTitle."</b><br>";
 
-   if (empty($clientRecord->contactPhone))
-        $phone  = $this->getPhone($list[$i]['orgRef']);
-    else
-        $phone  = $clientRecord->contactPhone;
+
+    $phone  = $this->getPhone($clientRecord->id);
 
      $page .= "<b> телефон: ".$phone."</b><br>";
      if (empty ($zakazRecord->clientEmail) )  $email = $clientRecord->contactEmail;
@@ -471,7 +499,7 @@ use app\models\TblOrgAccounts;
     }
     $p=$i;
 
-
+    $this->orderSum=$sum;
      $page .="<tr>\n";
      $page.="<td colspan=6 style='text-align:right;padding:5px'>Итого: ".number_format( $sum,2,'.','&nbsp;')." руб </td>\n";
      $page.="</tr>\n";

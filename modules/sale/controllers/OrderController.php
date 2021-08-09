@@ -129,7 +129,7 @@ class OrderController extends Controller
 
 
         $uploadPath=(realpath(dirname(__FILE__)))."/../uploads/";
-        $fname = 'order_'.\Yii::$app->security->generateRandomString(5).".doc";
+        $fname = 'order_'.$model->id."_".$model->orderSum."_".\Yii::$app->security->generateRandomString(5).".doc";
 
         $mask = realpath(dirname(__FILE__))."/../uploads/order_"."*.doc";
         array_map("unlink", glob($mask));
@@ -147,7 +147,14 @@ class OrderController extends Controller
         $model->html = $html;
         $model->attachDoc = $filePath;
         $model->sendMail();
-        
+
+        /*Перешлем копию в отдел продаж*/
+        $ownerMail = $model->getCfgValue(1001);
+        $model->email = $ownerMail;
+        $model->subject ="Уведомление о заказе № ".$model->id." от ".date("d.m.Y")." ".$model->orgTitle.
+        " на сумму ".$model->orderSum;
+        $model->sendMail();
+
         return $this->render('get-order', ['model' => $model, 'html' => $html, ]);         
     }
 
@@ -162,14 +169,14 @@ class OrderController extends Controller
 
 
         $uploadPath=(realpath(dirname(__FILE__)))."/../uploads/";
-        $fname = 'order_'.\Yii::$app->security->generateRandomString();
+        $fname = 'order_'.$model->id."_".$model->orderSum."_".\Yii::$app->security->generateRandomString(5).".doc";
 
         $mask = realpath(dirname(__FILE__))."/../uploads/order_"."*.doc";
         array_map("unlink", glob($mask));
 
         $filePath = $uploadPath.$fname;
         ExportToWord::htmlToDoc($html, $css, $filePath, 'UTF-8', 0);
-        $url = Yii::$app->request->baseUrl."/../uploads/".$fname;
+        $url = Yii::$app->request->baseUrl."/../modules/sale/uploads/".$fname;
 
         $this->redirect(['/site/download', 'url' => $url]);
           return;
